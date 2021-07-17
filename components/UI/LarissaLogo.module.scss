@@ -1,0 +1,89 @@
+.container {
+  padding: 0 0.5rem;
+}
+
+.shape0 {
+  //L
+  stroke-dasharray: 237.22796630859375;
+  stroke-dashoffset: 237.22796630859375;
+  animation: sign 0.3s cubic-bezier(0.65, 0.05, 0.36, 1);
+  animation-fill-mode: forwards;
+}
+
+.shape1 {
+  //arissa
+  stroke-dasharray: 846.7742309570312;
+  stroke-dashoffset: 846.7742309570312;
+  animation: sign 1s cubic-bezier(.55,.17,.54,.89);
+  animation-fill-mode: forwards;
+  animation-delay: 0.3s;
+}
+
+.shape2 {
+  // dot in i
+  stroke-dasharray: 9.956268310546875;
+  stroke-dashoffset: 9.956268310546875;
+  animation: sign 0.2s cubic-bezier(0.65, 0.05, 0.36, 1);
+  animation-fill-mode: forwards;
+  animation-delay: 3.7s;
+}
+
+.shape3 {
+  // stroke in P
+  stroke-dasharray: 163.35830688476562;
+  stroke-dashoffset: 163.35830688476562;
+  animation: sign 0.3s cubic-bezier(0.65, 0.05, 0.36, 1);
+  animation-fill-mode: forwards;
+  animation-delay: 1.3s;
+}
+
+.shape4 {
+  // curve in P
+  stroke-dasharray: 242.72760009765625;
+  stroke-dashoffset: 242.72760009765625;
+  animation: sign .3s cubic-bezier(0.65, 0.05, 0.36, 1);
+  animation-fill-mode: forwards;
+  animation-delay: 1.6s;
+}
+
+.shape5 {
+  // aschoal
+  stroke-dasharray: 1155.0469970703125;
+  stroke-dashoffset: 1155.0469970703125;
+  animation: sign .9s cubic-bezier(.55,.17,.54,.89);
+  animation-fill-mode: forwards;
+  animation-delay: 1.9s;
+}
+
+.shape6 {
+  // ott
+  stroke-dasharray: 525.9842529296875;
+  stroke-dashoffset: 525.9842529296875;
+  animation: sign 0.4s cubic-bezier(.55,.17,.54,.89);
+  animation-fill-mode: forwards;
+  animation-delay: 2.8s;
+}
+
+.shape7 {
+  // o
+  stroke-dasharray: 98.51991271972656;
+  stroke-dashoffset: 98.51991271972656;
+  animation: sign .3s cubic-bezier(.55,.17,.54,.89);
+  animation-fill-mode: forwards;
+    animation-delay: 3.2s;
+}
+
+.shape8 {
+  // cross in tt
+  stroke-dasharray: 115.26420593261719;
+  stroke-dashoffset: 115.26420593261719;
+  animation: sign 0.2s cubic-bezier(0.65, 0.05, 0.36, 1);
+  animation-fill-mode: forwards;
+  animation-delay: 3.5s;
+}
+
+@keyframes sign {
+  to {
+    stroke-dashoffset: 0;
+  }
+}

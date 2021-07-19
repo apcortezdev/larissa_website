@@ -10,58 +10,40 @@
   margin: auto;
 }
 
-.listItem {
+.menu {
   position: relative;
-  list-style: none;
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  text-transform: uppercase;
-  background-color: transparent;
-}
+  padding: 0;
 
-.left {
-  &::after {
-    content: '';
+  & li {
+    list-style: none;
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    text-transform: uppercase;
+    background-color: transparent;
+    transition: width 0.2s ease-in-out;
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  .underline {
     position: absolute;
-    top: 0;
+    opacity: 0;
+    bottom: .5rem;
     left: 0;
-    width: 0;
-    height: 80%;
-    border-bottom: 1px solid map-get($map: $colors, $key: black);
-    transition: width 0.2s ease-in-out;
-  }
-  &:hover {
-    &::after {
-      width: 100%;
-    }
+    width: 2rem;
+    height: 1px;
+    background-color: map-get($map: $colors, $key: black);
+    transition: all 0.1s ease-in-out;
   }
 }
 
-.right {
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 0;
-    height: 80%;
-    border-bottom: 1px solid map-get($map: $colors, $key: black);
-    transition: width 0.2s ease-in-out;
-  }
-  &:hover {
-    cursor: pointer;
-    &::after {
-      width: 100%;
-    }
-  }
-}
-
-.logbox {
-  background-color: map-get($map: $colors, $key: black);
-  color: map-get($map: $colors, $key: white);
-  width: 8rem;
-  height: 3rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+// .logbox {
+//   background-color: map-get($map: $colors, $key: black);
+//   color: map-get($map: $colors, $key: white);
+//   width: 8rem;
+//   height: 3rem;
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+// }

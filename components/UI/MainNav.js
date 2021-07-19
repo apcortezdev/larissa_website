@@ -4,35 +4,32 @@ import styles from './MainNav.module.scss';
 
 export default function MainModule(props) {
   const menuItemOne = useRef();
-  const [itemOneSide, setItemOneSide] = useState();
   const menuItemTwo = useRef();
-  const [itemTwoSide, setItemTwoSide] = useState();
   const menuItemThree = useRef();
-  const [itemThreeSide, setItemThreeSide] = useState();
-  const menuItemfour = useRef();
-  const [itemFourSide, setItemFourSide] = useState();
 
-  function mouseMove(setState, target, event) {
-    if (
-      event.pageX - target.current.offsetLeft <
-      target.current.offsetWidth / 2
-    ) {
-      setState('L');
-    } else {
-      setState('R');
-    }
+  const [menuHover, setMenuHover] = useState(false);
+  const [menuWidth, setMenuWidth] = useState(0);
+  const [menuLeft, setMenuLeft] = useState(0);
+
+  function mouseHoverList() {
+    setMenuHover((state) => !state);
+  }
+
+  function mouseHoverItem(ref) {
+    setMenuWidth(ref.current.offsetWidth);
+    setMenuLeft(ref.current.offsetLeft);
   }
 
   return (
     <nav className={styles.container}>
-      <ul>
+      <ul
+        className={styles.menu}
+        onMouseEnter={mouseHoverList}
+        onMouseLeave={mouseHoverList}
+      >
         <li
-          className={[
-            styles.listItem,
-            itemOneSide === 'L' ? styles.left : styles.right,
-          ].join(' ')}
           ref={menuItemOne}
-          onMouseEnter={mouseMove.bind(this, setItemOneSide, menuItemOne)}
+          onMouseEnter={mouseHoverItem.bind(this, menuItemOne)}
         >
           <Link href={{ pathname: '/' }} passHref>
             <a>home</a>
@@ -40,41 +37,29 @@ export default function MainModule(props) {
           <span className={styles.underline} />
         </li>
         <li
-          className={[
-            styles.listItem,
-            itemTwoSide === 'L' ? styles.left : styles.right,
-          ].join(' ')}
           ref={menuItemTwo}
-          onMouseEnter={mouseMove.bind(this, setItemTwoSide, menuItemTwo)}
+          onMouseEnter={mouseHoverItem.bind(this, menuItemTwo)}
         >
           <Link href={{ pathname: '/' }} passHref>
             <a>Galeria</a>
           </Link>
         </li>
         <li
-          className={[
-            styles.listItem,
-            itemThreeSide === 'L' ? styles.left : styles.right,
-          ].join(' ')}
           ref={menuItemThree}
-          onMouseEnter={mouseMove.bind(this, setItemThreeSide, menuItemThree)}
-        >
-          <Link href={{ pathname: '/' }} passHref>
-            <a>Projetos</a>
-          </Link>
-        </li>
-        <li
-          className={[
-            styles.listItem,
-            itemFourSide === 'L' ? styles.left : styles.right,
-          ].join(' ')}
-          ref={menuItemfour}
-          onMouseEnter={mouseMove.bind(this, setItemFourSide, menuItemfour)}
+          onMouseEnter={mouseHoverItem.bind(this, menuItemThree)}
         >
           <Link href={{ pathname: '/' }} passHref>
             <a>Contato</a>
           </Link>
         </li>
+        <span
+          className={styles.underline}
+          style={{
+            opacity: menuHover ? 1 : 0,
+            width: menuWidth,
+            left: menuLeft,
+          }}
+        />
       </ul>
       {/* <div className={styles.logbox}>Login</div> */}
     </nav>

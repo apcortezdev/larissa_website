@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import styles from '../styles/Home.module.scss';
 
-export default function Home() {
+export default function Home(props) {
   return (
     <div className={styles.container}>
       <Head>

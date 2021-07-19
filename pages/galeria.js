@@ -5,9 +5,9 @@ import MainNav from '../components/UI/MainNav';
 import Footer from '../components/UI/Footer';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
-import styles from '../styles/Home.module.scss';
+import styles from '../styles/Galeria.module.scss';
 
-export default function Home(props) {
+export default function Galeria(props) {
   return (
     <div className={styles.container}>
       <Head>
@@ -22,17 +22,7 @@ export default function Home(props) {
 
       <main id="top" className={styles.main}>
         <MainNav />
-        <section className={styles.sectionOne}>
-          <div className={styles.logoMain}>
-            <LarissaLogo animated color="#151515" />{' '}
-          </div>
-          <div className={styles.logoSub}>
-            <Arquitetura />
-          </div>
-        </section>
-        <section className={styles.sectionTwo} >
-          
-        </section>
+
         <Footer />
       </main>
     </div>

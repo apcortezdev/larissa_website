@@ -1,40 +1,93 @@
 @import '../../styles/_colors.scss';
+@import '../../styles/_mixin.scss';
 
 .container {
-  background-color: transparent;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  max-width: 80rem;
-  margin: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 4rem;
+  z-index: 10;
+  background-color: map-get($map: $colors, $key: white);
 }
 
-.menu {
-  position: relative;
-  padding: 0;
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 80rem;
+  margin: 1rem auto;
+}
+
+.mobilenav_icontoggle {
+  .mobilenav__icon {
+    margin: 0 1rem;
+    color: map-get($map: $colors, $key: black);
+    fill: map-get($map: $colors, $key: black);
+    background-color: transparent;
+  }
+
+  @include media-min-width(30rem) {
+    display: none;
+  }
+}
+
+.mobilenav__menu {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 10rem;
+  height: 100vh;
+  z-index: 20;
+  padding: 5rem 0;
+  transition: all 0.2s ease-in-out;
+  background-color: map-get($map: $colors, $key: white);
 
   & li {
     list-style: none;
-    display: inline-block;
-    padding: 0.5rem 1rem;
+    display: block;
     text-transform: uppercase;
     background-color: transparent;
-    transition: width 0.2s ease-in-out;
-    &:hover {
-      cursor: pointer;
-    }
+    margin: 1rem 0;
   }
+}
 
-  .underline {
-    position: absolute;
-    opacity: 0;
-    bottom: .5rem;
-    left: 0;
-    width: 2rem;
-    height: 1px;
-    background-color: map-get($map: $colors, $key: black);
-    transition: all 0.1s ease-in-out;
+.mobileOn {
+  left: 0;
+}
+
+.webmenu {
+  display: none;
+
+  @include media-min-width(30rem) {
+    display: inline-block;
+    position: relative;
+    padding: 0;
+    margin: 0 1rem;
+
+    & li {
+      list-style: none;
+      display: inline-block;
+      text-transform: uppercase;
+      background-color: transparent;
+      transition: width 0.2s ease-in-out;
+      margin: 0 1rem 0 0;
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    .underline {
+      position: absolute;
+      opacity: 0;
+      bottom: 0;
+      left: 0;
+      width: 2rem;
+      height: 1px;
+      background-color: map-get($map: $colors, $key: black);
+      transition: all 0.1s ease-in-out;
+    }
   }
 }
 

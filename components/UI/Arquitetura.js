@@ -6,8 +6,8 @@ export default function LarissaLogo() {
     <div className={styles.container}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="414.96pt"
-        height="34.08pt"
+        width="100%" //414.96pt
+        height="100%" //34.08pt
         viewBox="0 0 414.96 34.08"
       >
         <defs />

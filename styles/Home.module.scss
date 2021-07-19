@@ -14,12 +14,26 @@
   min-height: 100vh;
 }
 
-.logos {
+.sectionOne {
   display: flex;
-  max-width: 60rem;
-  top: 30%;
-  margin: 7rem auto 0 auto;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  height: 95vh;
+  width: 100vw;
+  top: 30%;
+
+  .logoMain {
+    width: 80%;
+    max-width: 50rem;
+  }
+
+  .logoSub {
+    width: 60%;
+    max-width: 28rem;
+  }
+}
+
+.sectionTwo {
+  background-color: map-get($map: $colors, $key: black);
 }

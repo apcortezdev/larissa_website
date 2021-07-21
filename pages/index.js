@@ -30,8 +30,20 @@ export default function Home(props) {
             <Arquitetura />
           </div>
         </section>
-        <section className={styles.sectionTwo} >
-          
+        <section className={styles.sectionTwo}>
+          <div className={styles.projOne}>
+            <div className={styles.description}>Projeto Vila Rica</div>
+            <div className={styles.picture}>
+              <Image
+                src="/images/banner01.png"
+                width={1950}
+                height={1300}
+                objectFit="cover"
+                loading="lazy"
+                alt="Projeto Vila Rica"
+              />
+            </div>
+          </div>
         </section>
         <Footer />
       </main>

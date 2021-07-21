@@ -1,0 +1,53 @@
+@import '../../styles/_colors.scss';
+
+.button {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 6rem;
+  height: 3rem;
+  background-color: map-get($map: $colors, $key: black);
+  color: map-get($map: $colors, $key: white);
+  font-family: inherit;
+  font-size: inherit;
+  border: none;
+  padding: 0;
+
+  .iconspace,
+  .textspace {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease-in-out;
+  }
+
+  .textspace {
+    width: 100%;
+    left: 0;
+  }
+
+  .iconspace {
+    width: 40%;
+    right: 0;
+    opacity: 0;
+  }
+
+  &:hover {
+    cursor: pointer;
+    .textspace {
+      width: 80%;
+    }
+    .iconspace {
+      opacity: 1;
+    }
+  }
+}
+
+.icon {
+  fill: map-get($map: $colors, $key: white);
+}

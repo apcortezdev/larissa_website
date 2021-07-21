@@ -1,4 +1,5 @@
 @import '../styles/_colors.scss';
+@import '../styles/_mixin.scss';
 
 .container {
   min-height: 100vh;
@@ -16,12 +17,18 @@
 
 .sectionOne {
   display: flex;
+  margin-top: 4rem;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 95vh;
-  width: 100vw;
+  width: 100%;
+  height: 40vh;
   top: 30%;
+  background-color: white;
+
+  @include media-min-width(55.5rem) {
+    height: 95vh;
+  }
 
   .logoMain {
     width: 80%;
@@ -35,5 +42,17 @@
 }
 
 .sectionTwo {
-  background-color: map-get($map: $colors, $key: black);
+  // background-color: map-get($map: $colors, $key: black);
+
+  .projOne {
+    width: 100%;
+
+    .description {
+      width: 100%;
+    }
+    .picture {
+      display: flex;
+      height: 40vh;
+    }
+  }
 }

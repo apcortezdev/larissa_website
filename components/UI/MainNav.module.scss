@@ -3,6 +3,8 @@
 
 .container {
   position: fixed;
+  display: flex;
+  align-content: center;
   top: 0;
   left: 0;
   width: 100vw;

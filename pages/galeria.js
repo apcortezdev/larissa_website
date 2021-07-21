@@ -6,6 +6,7 @@ import Footer from '../components/UI/Footer';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import styles from '../styles/Galeria.module.scss';
+import galery from '../data/galery';
 
 export default function Galeria(props) {
   return (
@@ -22,7 +23,27 @@ export default function Galeria(props) {
 
       <main id="top" className={styles.main}>
         <MainNav />
-
+        <article className={styles.content}>
+          <section className={styles.galery}>
+            {galery.map((pic) => (
+              <div
+                className={styles.galery_item}
+                key={pic.src}
+                style={{gridRow: "span " + pic.grow}}
+              >
+                <Image
+                  key={pic.src}
+                  src={pic.src}
+                  width={pic.width}
+                  height={pic.height}
+                  alt={pic.alt}
+                  loading="lazy"
+                  objectFit="cover"
+                />
+              </div>
+            ))}
+          </section>
+        </article>
         <Footer />
       </main>
     </div>

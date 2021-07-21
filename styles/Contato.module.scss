@@ -1,113 +1,209 @@
 @import '../styles/_colors.scss';
+@import '../styles/_mixin.scss';
 
 .container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  // min-height: 100vh;
+  // min-width: 100vw;
   background-color: map-get($map: $colors, $key: white);
-}
 
-.main {
-  width: 100vw;
-  min-height: 100vh;
-}
-
-.content {
-  display: block;
-  width: 100%;
-  max-width: 70rem;
-  margin-top: 4rem;
-  margin-right: auto;
-  margin-left: auto;
-
-  h2,
-  h3 {
-    font-family: inherit;
-    font-weight: 400;
-  }
-
-  h2 {
-    font-size: 1.5rem;
-    text-align: center;
-    text-transform: uppercase;
-  }
-
-  h3 {
-    font-size: 1.1rem;
-  }
-
-  .contact {
-    display: inline-flex;
+  .main {
     width: 100%;
-  }
+    min-height: 100%;
 
-  .contact_info {
-    width: 30%;
-
-    > span {
-      display: inline-flex;
-      align-items: center;
+    .content {
+      display: block;
       width: 100%;
-      margin: 0.5rem 0;
+      margin-top: 4rem;
 
-      > :first-child {
-        margin-right: 0.5rem;
-      }
-    }
-  }
-
-  .contact_messanger {
-    display: inline-flex;
-    flex-direction: column;
-    width: 70%;
-
-    .contact_form {
-      width: 100%;
-
-      > textarea,
-      > input {
-        padding: 1rem;
-        width: 80%;
-        min-width: 10rem;
-        max-width: 40rem;
+      h2,
+      h3 {
         font-family: inherit;
-        font-size: inherit;
-        border: 1px solid map-get($map: $colors, $key: grey);
-        outline: none;
+        font-weight: 400;
+      }
 
-        :focus {
-          outline: none;
+      h2 {
+        margin-bottom: 3rem;
+        font-size: 1.5rem;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      h3 {
+        font-size: 1.1rem;
+      }
+
+      .section_header {
+        width: 100%;
+
+        @include media-min-width(55.5rem) {
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          height: 60vh;
+        }
+
+        .section_header__left {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          width: 100%;
+          margin: 0;
+          padding: 1rem;
+          background-color: white;
+
+          @include media-min-width(55.5rem) {
+            width: 30%;
+            height: 100%;
+          }
+
+          .l1 {
+            margin-left: auto;
+            margin-right: auto;
+            min-width: 10rem;
+            max-width: 13.75rem;
+            width: 50%;
+
+            @include media-min-width(55.5rem) {
+              max-width: none;
+              width: 80%;
+            }
+          }
+          .l2 {
+            margin-left: auto;
+            margin-right: auto;
+            min-width: 6rem;
+            max-width: 7.85rem;
+            width: 30%;
+
+            @include media-min-width(55.5rem) {
+              max-width: none;
+              width: 50%;
+            }
+          }
+        }
+        .section_header__right {
+          display: flex;
+          width: 100%;
+          height: 30vh;
+          margin: 0;
+          padding: 0;
+          // transform: skew(-20deg);
+          // overflow: hidden;
+
+          @include media-min-width(55.5rem) {
+            width: 70%;
+            height: 100%;
+          }
         }
       }
 
-      > textarea {
-        height: 10rem;
+      .section_contact {
+        margin-top: 8rem;
+        margin-right: auto;
+        margin-left: auto;
+        margin-bottom: 8rem;
+        max-width: 70rem;
+
+        & > article {
+          @include media-min-width(55.5rem) {
+            display: flex;
+            flex-direction: row;
+            align-content: center;
+          }
+        }
+
+        .contact_info {
+          margin-right: auto;
+          margin-left: auto;
+          max-width: 17rem;
+          padding: 0 0.5rem;
+
+          @include media-min-width(55.5rem) {
+            // margin-left: 0;
+          }
+
+          > span {
+            display: inline-flex;
+            align-items: center;
+            width: 100%;
+            margin: 0.5rem 0.2rem;
+            font-size: 0.85rem;
+            @include media-min-width(55.5rem) {
+              font-size: 1rem;
+            }
+
+            > :first-child {
+              @include media-min-width(55.5rem) {
+                margin-right: 0.5rem;
+              }
+            }
+          }
+        }
+
+        .contact_messanger {
+          margin-right: auto;
+          margin-left: auto;
+          width: 90%;
+          max-width: 50rem;
+
+          @include media-min-width(55.5rem) {
+            margin-right: 0;
+            display: inline-block;
+            width: 65%;
+          }
+
+          .contact_form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+
+            > textarea,
+            > input {
+              padding: 1rem;
+              width: 100%;
+              min-width: 10rem;
+              font-family: inherit;
+              font-size: inherit;
+              border: 1px solid map-get($map: $colors, $key: grey);
+              outline: none;
+              margin-bottom: 1rem;
+
+              :focus {
+                outline: none;
+              }
+            }
+
+            > textarea {
+              height: 10rem;
+            }
+          }
+        }
+
+        .contact_icon_span {
+          display: flex;
+          justify-content: center;
+          padding-right: 0.5rem;
+        }
+
+        .contact_icon {
+          fill: map-get($map: $colors, $key: dark-grey);
+        }
+      }
+
+      .button_send {
+        width: 6rem;
+        height: 3rem;
+        background-color: map-get($map: $colors, $key: black);
+        color: map-get($map: $colors, $key: white);
+        font-family: inherit;
+        font-size: inherit;
+        border: none;
+
+        &:hover {
+          cursor: pointer;
+        }
       }
     }
-  }
-
-  .contact_icon_span {
-    display: flex;
-    justify-content: center;
-    width: 2rem;
-  }
-
-  .contact_icon {
-    fill: map-get($map: $colors, $key: dark-grey);
-  }
-
-//   .contact_social_w {
-//     width: 23pt;
-//     height: 23pt;
-//   }
-  .contact_whatsapp:hover .contact_social_w {
-    fill: map-get($map: $colors, $key: whatsapp-color);
-  }
-
-  .contact_social_i {
-    width: 19pt;
-    height: 19pt;
   }
 }

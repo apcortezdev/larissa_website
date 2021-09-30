@@ -14,6 +14,7 @@
 }
 
 .content {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -93,7 +94,7 @@
   }
 }
 
-.logbox {
+.logbtn {
   background-color: map-get($map: $colors, $key: black);
   color: map-get($map: $colors, $key: white);
   width: 8rem;
@@ -105,5 +106,95 @@
 
   &:hover {
     text-decoration: underline;
+  }
+}
+
+.logBox {
+  color: map-get($map: $colors, $key: white);
+  position: absolute;
+  right: 0;
+  bottom: -19.5rem;
+  width: 100%;
+  max-width: 20rem;
+  height: 19rem;
+  background-color: map-get($map: $colors, $key: black);
+  padding: 2rem;
+
+  & p {
+    margin: 0 auto 1rem auto;
+    &:hover {
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  }
+
+  & > form {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    > input {
+      padding: 1rem;
+      width: 100%;
+      min-width: 10rem;
+      font-family: inherit;
+      font-size: inherit;
+      border: 1px solid map-get($map: $colors, $key: grey);
+      outline: none;
+      margin-bottom: 1rem;
+
+      :focus {
+        outline: none;
+      }
+    }
+  }
+
+  .enter {
+    align-self: flex-end;
+    width: 10rem;
+    border: 1px solid map-get($map: $colors, $key: white);
+  }
+}
+
+.loader,
+.loader:after {
+  border-radius: 50%;
+  width: 10em;
+  height: 10em;
+}
+.loader {
+  margin: 60px auto;
+  font-size: 10px;
+  position: relative;
+  text-indent: -9999em;
+  border-top: 1.1em solid map-get($map: $colors, $key: black-transparent-light);
+  border-right: 1.1em solid map-get($map: $colors, $key: black-transparent-light);
+  border-bottom: 1.1em solid map-get($map: $colors, $key: black-transparent-light);
+  border-left: 1.1em solid map-get($map: $colors, $key: black);
+  -webkit-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-animation: load8 1.1s infinite linear;
+  animation: load8 1.1s infinite linear;
+}
+@-webkit-keyframes load8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes load8 {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
   }
 }

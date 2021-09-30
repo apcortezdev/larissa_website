@@ -1,17 +1,24 @@
 @import '../../styles/_colors.scss';
 
 .container {
-  // position: absolute;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  // bottom: 0;
   width: 100%;
   background-color: map-get($map: $colors, $key: black);
-  height: 10rem;
+  color: map-get($map: $colors, $key: white);
+  height: 20rem;
 }
 
 .logo {
   width: 15.79rem;
   height: 3.625;
+}
+
+.social {
+  margin: .5rem auto;
+  svg {
+    margin: 0 .5rem;
+  }
 }

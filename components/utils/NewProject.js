@@ -3,36 +3,8 @@ import styles from './NewProject.module.scss';
 import { Input, InputMask, SelectText } from './FormComponents';
 import { useRef, useState } from 'react';
 import Button from './Button';
-
-const states = [
-  { id: 'ac', text: 'AC' },
-  { id: 'al', text: 'AL' },
-  { id: 'ap', text: 'AP' },
-  { id: 'am', text: 'AM' },
-  { id: 'ba', text: 'BA' },
-  { id: 'ce', text: 'CE' },
-  { id: 'df', text: 'DF' },
-  { id: 'es', text: 'ES' },
-  { id: 'go', text: 'GO' },
-  { id: 'ma', text: 'MA' },
-  { id: 'mt', text: 'MT' },
-  { id: 'ms', text: 'MS' },
-  { id: 'mg', text: 'MG' },
-  { id: 'pa', text: 'PA' },
-  { id: 'pb', text: 'PB' },
-  { id: 'pr', text: 'PR' },
-  { id: 'pe', text: 'PE' },
-  { id: 'pi', text: 'PI' },
-  { id: 'rj', text: 'RJ' },
-  { id: 'rn', text: 'RN' },
-  { id: 'rs', text: 'RS' },
-  { id: 'ro', text: 'RO' },
-  { id: 'rr', text: 'RR' },
-  { id: 'sc', text: 'SC' },
-  { id: 'sp', text: 'SP' },
-  { id: 'se', text: 'SE' },
-  { id: 'to', text: 'TO' },
-];
+import { validateEmail } from '../../util/frontValidation';
+import Dialog from '../UI/Dialog';
 
 const NewProject = ({ onDismiss }) => {
   const name = useRef();
@@ -46,8 +18,43 @@ const NewProject = ({ onDismiss }) => {
   const city = useRef();
   const state = useRef();
 
-  const save = (event) => {
+  // Dialog
+  const [showDialog, setShowDialog] = useState(false);
+  const [onOkFunc, setOnOkFunc] = useState(null);
+  const [dialogMessage, setDialogMessage] = useState();
+
+  const validate = () => {
+    return true;
+  };
+
+  const save = async (event) => {
     event.preventDefault();
+    setOnOkFunc(null);
+    setDialogMessage('Salvando...');
+    setShowDialog(true);
+    if (validate) {
+      const response = await fetch('/api/project', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project: name.current.value }),
+      });
+      switch (response.status) {
+        case 201:
+          const data = await response.json();
+          setDialogMessage('Salvo com Sucesso!');
+          setOnOkFunc(() => () => setShowDialog(false));
+          setShowDialog(true);
+          break;
+        case 400:
+          window.alert('Ops: ' + response.status);
+          break;
+        default:
+          window.alert(
+            'Ops, Algo de errado não está certo! ERRO: ' + response.status
+          );
+          break;
+      }
+    }
   };
 
   const submit = (
@@ -68,7 +75,6 @@ const NewProject = ({ onDismiss }) => {
       width="16"
       height="16"
       fill="currentColor"
-      class="bi bi-x-lg"
       viewBox="0 0 16 16"
     >
       <path d="M1.293 1.293a1 1 0 0 1 1.414 0L8 6.586l5.293-5.293a1 1 0 1 1 1.414 1.414L9.414 8l5.293 5.293a1 1 0 0 1-1.414 1.414L8 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L6.586 8 1.293 2.707a1 1 0 0 1 0-1.414z" />
@@ -141,6 +147,9 @@ const NewProject = ({ onDismiss }) => {
           </Button>
         </span>
       </form>
+      <Dialog show={showDialog} onOk={onOkFunc}>
+        {dialogMessage}
+      </Dialog>
     </div>
   );
 };

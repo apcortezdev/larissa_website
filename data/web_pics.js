@@ -91,8 +91,8 @@ const dummyGalery = [
   },
   {
     name: 'banheiro glamuroso',
-    src: '/images/galery/LarissaPaschoalotto_galery15.jpeg',
-    alt: 'Larissa Paschoalotto Foto de Galeria 15',
+    src: '/images/galery/LarissaPaschoalotto_galery24.jpeg',
+    alt: 'Larissa Paschoalotto Foto de Galeria 24',
     grow: 1,
   },
   {
@@ -103,8 +103,8 @@ const dummyGalery = [
   },
   {
     name: 'banheiro glamuroso',
-    src: '/images/galery/LarissaPaschoalotto_galery20.jpeg',
-    alt: 'Larissa Paschoalotto Foto de Galeria 20',
+    src: '/images/galery/LarissaPaschoalotto_galery23.jpeg',
+    alt: 'Larissa Paschoalotto Foto de Galeria 23',
     grow: 1,
   },
   {

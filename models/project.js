@@ -17,6 +17,49 @@ const fileSchema = new Schema({
   },
 });
 
+const recoveryLogSchema = new Schema({
+  country_code: {
+    type: String,
+    required: true,
+  },
+  country_name: {
+    type: String,
+    required: true,
+  },
+  city: {
+    type: String,
+    required: true,
+  },
+  postal: {
+    type: String,
+    required: true,
+  },
+  latitude: {
+    type: String,
+    required: true,
+  },
+  longitude: {
+    type: String,
+    required: true,
+  },
+  IPv4: {
+    type: String,
+    required: true,
+  },
+  state: {
+    type: String,
+    required: true,
+  },
+  requestedOn: {
+    type: Date,
+    required: true,
+  },
+  recoveredOn: {
+    type: Date,
+    required: false,
+  },
+});
+
 const project = new Schema({
   name: {
     type: String,
@@ -78,6 +121,19 @@ const project = new Schema({
     type: Date,
     default: new Date(),
   },
+  lastRecoveryString: {
+    type: String,
+    required: true,
+  },
+  lastRecoveryTime: {
+    type: Date,
+    required: false,
+  },
+  lastRecoveryActive: {
+    type: Date,
+    required: false,
+  },
+  recoveryLogs: [recoveryLogSchema],
   files: [fileSchema],
 });
 

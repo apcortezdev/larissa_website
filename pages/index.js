@@ -31,19 +31,83 @@ export default function Home(props) {
           </div>
         </section>
         <section className={styles.sectionTwo}>
-          <div className={styles.projOne}>
-            <div className={styles.description}>Projeto Vila Rica</div>
+          <section className={[styles.session, styles.row].join(' ')}>
+            <div className={styles.aside}>
+              <h1>
+                o espaço é o
+                <br />
+                reflexo de
+                <br />
+                quem o habita
+              </h1>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat.
+              </p>
+            </div>
             <div className={styles.picture}>
               <Image
-                src="/images/banner01.png"
-                width={1950}
-                height={1300}
+                src="/images/galery/LarissaPaschoalotto_galery09.jpeg"
+                alt="Projeto Sala de Jantar"
                 objectFit="cover"
                 loading="lazy"
-                alt="Projeto Vila Rica"
+                layout="fill"
               />
             </div>
-          </div>
+          </section>
+          <section className={[styles.session, styles.rowReverse].join(' ')}>
+            <div className={styles.aside}>
+              <h1>
+                o ambiente
+                <br />
+                estimula
+                <br />a alma
+              </h1>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat.
+              </p>
+            </div>
+            <div className={styles.picture}>
+              <Image
+                src="/images/galery/LarissaPaschoalotto_galery03.jpeg"
+                alt="Projeto Sala de Jantar"
+                objectFit="cover"
+                loading="lazy"
+                layout="fill"
+              />
+            </div>
+          </section>
+          <section className={[styles.session, styles.row].join(' ')}>
+            <div className={styles.aside}>
+              <h1>
+                sua casa
+                <br />
+                seu refúgio
+              </h1>
+              <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
+                enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
+                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
+                nulla pariatur.
+              </p>
+            </div>
+            <div className={styles.picture}>
+              <Image
+                src="/images/galery/LarissaPaschoalotto_galery25.jpeg"
+                alt="Projeto Sala de Jantar"
+                objectFit="cover"
+                loading="lazy"
+                layout="fill"
+              />
+            </div>
+          </section>
         </section>
         <Footer />
       </main>

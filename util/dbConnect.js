@@ -6,11 +6,9 @@ async function dbConnect() {
   if (connection.isConnected) {
     return;
   }
-  const db = await mongoose.connect(process.env.URIDEVDB, {
+  const db = await mongoose.connect(process.env.MONGODEV_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useFindAndModify: false,
-    useCreateIndex: true,
   });
 
   connection.isConnected = db.connections[0].readyState;

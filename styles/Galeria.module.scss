@@ -38,7 +38,11 @@
   }
 
   .galery_item {
+    position: relative;
     display: flex;
+    border: 1px solid transparent;
+    transition: all 0.25s ease;
+    overflow: hidden;
     // grid-column: span 2;
     // grid-row: span 2;
     width: 100%;
@@ -47,5 +51,53 @@
     //   width: 5rem;
     //   height: 5rem;
     // }
+    .img_info {
+      position: absolute;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 4rem;
+      top: -4rem;
+      left: 0;
+      right: 0;
+      color: map-get($map: $colors, $key: white);
+      background-color: map-get($map: $colors, $key: black);
+      transition: all 0.25s ease;
+    }
+    &:hover {
+      border: 1px solid map-get($map: $colors, $key: black);
+      cursor: pointer;
+      .img_info {
+        top: 0;
+      }
+    }
+  }
+}
+
+.img_dialog {
+  position: fixed;
+  z-index: 15;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: map-get($map: $colors, $key: black-transparent);
+  cursor: initial;
+
+  .img {
+    position: absolute;
+    top: 7.5%;
+    width: 100%;
+    height: 85%;
+  }
+
+  .closeIcon {
+    position: absolute;
+    right: 5%;
+    top: 5%;
+    cursor: pointer;
   }
 }

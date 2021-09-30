@@ -12,6 +12,19 @@ export default function Contato(props) {
   const sendMessage = (event) => {
     event.preventDefault();
   };
+
+  const submit = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      fill="currentColor"
+      viewBox="0 0 16 16"
+    >
+      <path d="M6 12.796V3.204L11.481 8 6 12.796zm.659.753 5.48-4.796a1 1 0 0 0 0-1.506L6.66 2.451C6.011 1.885 5 2.345 5 3.204v9.592a1 1 0 0 0 1.659.753z" />
+    </svg>
+  );
+
   return (
     <div className={styles.container}>
       <Head>
@@ -37,7 +50,7 @@ export default function Contato(props) {
             </div>
             <div className={styles.section_header__right}>
               <Image
-                src="/images/contato.png"
+                src="/images/contact.jpg"
                 width={1950}
                 height={1300}
                 objectFit="cover"
@@ -55,7 +68,7 @@ export default function Contato(props) {
                   <input type="text" id="phone" placeholder="Telefone" />
                   <input type="email" id="email" placeholder="E-mail" />
                   <textarea type="text" id="message" placeholder="Mensagem" />
-                  <Button type="submit" onClick={sendMessage}>
+                  <Button type="submit" onClick={sendMessage} icon={submit}>
                     Enviar
                   </Button>
                 </form>

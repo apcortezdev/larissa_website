@@ -1,0 +1,51 @@
+@import '../../styles/_colors.scss';
+@import '../../styles/_mixin.scss';
+
+.content {
+  padding: 1rem;
+  color: map-get($map: $colors, $key: black);
+  height: 100%;
+  & > form {
+    position: relative;
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 50%;
+    & > label {
+      display: block;
+      margin: 1rem 0;
+    }
+    & > span:first-of-type {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      width: 100%;
+      & > label {
+        display: inline-block;
+      }
+
+      .inputCity {
+        width: calc(100% - 6rem);
+      }
+      .inputState {
+        width: 5rem;
+        text-transform: uppercase;
+      }
+    }
+    & > span:last-of-type {
+      position: absolute;
+      right: 0;
+      width: 100%;
+      display: flex;
+      max-width: 21rem;
+      margin-top: 1rem;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    .button {
+        width: 10rem;
+    }
+  }
+}

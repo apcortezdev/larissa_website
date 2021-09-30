@@ -1,16 +1,6 @@
 import { useEffect, useRef } from 'react';
 import styles from './LarissaLogo.module.scss';
 
-// 237.22796630859375
-// 846.7742309570312
-// 9.956268310546875
-// 163.35830688476562
-// 242.72760009765625
-// 1155.0469970703125
-// 525.9842529296875
-// 98.51991271972656
-// 115.26420593261719
-
 export default function LarissaLogo({ animated, color }) {
   return (
     <div className={styles.container}>

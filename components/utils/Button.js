@@ -1,20 +1,26 @@
 import styles from './Button.module.scss';
+import PropTypes from 'prop-types';
 
-export default function Button({ children, ...rest }) {
+export default function Button({ className, style, children, icon, ...rest }) {
   return (
-    <button className={styles.button} {...rest}>
+    <button
+      className={[
+        styles.button,
+        style === 'secondary' ? styles.secondary : styles.primary,
+        className,
+      ].join(' ')}
+      {...rest}
+    >
       <span className={styles.textspace}>{children}</span>
       <span className={styles.iconspace}>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          className={styles.icon}
-          viewBox="0 0 16 16"
-        >
-          <path d="M6 12.796V3.204L11.481 8 6 12.796zm.659.753 5.48-4.796a1 1 0 0 0 0-1.506L6.66 2.451C6.011 1.885 5 2.345 5 3.204v9.592a1 1 0 0 0 1.659.753z" />
-        </svg>
+        {icon}
       </span>
     </button>
   );
 }
+
+Button.propTypes = {
+  className: PropTypes.string,
+  style: PropTypes.oneOf(['primary', 'secondary']),
+  icon: PropTypes.node,
+};

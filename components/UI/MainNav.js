@@ -3,7 +3,7 @@ import Backdrop from './Backdrop';
 import { useEffect, useRef, useState } from 'react';
 import styles from './MainNav.module.scss';
 
-export default function MainModule(props) {
+export default function MainModule() {
   const menuItemOne = useRef();
   const menuItemTwo = useRef();
   const menuItemThree = useRef();
@@ -107,8 +107,8 @@ export default function MainModule(props) {
             </Link>
           </li>
         </ul>
-        {/* <div className={styles.logbox}>Login</div> */}
-        { mobileToggle && <Backdrop onDismiss={mobilenav_toggle}/>}
+        <div className={styles.logbox}>Login</div>
+        {mobileToggle && <Backdrop onDismiss={mobilenav_toggle} />}
       </div>
     </nav>
   );

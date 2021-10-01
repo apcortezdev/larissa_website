@@ -46,12 +46,11 @@ const hasErrors = (project) => {
   }
 
   // cpf/cnpj
-  // console.log(validateCNPJ(project.cpfCnpj))
   if (
     !project.cpfCnpj ||
     (project.cpfCnpj.length !== 11 && project.cpfCnpj.length !== 14) ||
     (project.cpfCnpj.length === 11 && !validateCPF(project.cpfCnpj)) ||
-    (project.cpfCnpj === 14 && !validateCNPJ(project.cpfCnpj))
+    (project.cpfCnpj.length === 14 && !validateCNPJ(project.cpfCnpj))
   ) {
     errors.push('CPF/CNPJ inválido');
   }
@@ -77,7 +76,6 @@ const hasErrors = (project) => {
 };
 
 export async function postProject(project) {
-  console.log(project);
   const errors = hasErrors(project);
 
   let newProject;
@@ -109,11 +107,11 @@ export async function postProject(project) {
   }
 
   try {
-    // const exists = await Client.findOne().byEmail(validation.client.email);
-    // if (exists) {
-    //   throw new Error('DUPLICATED');
-    // }
-    // const created = await newClient.save();
+    const exists = await Client.findOne().byEmail(validation.client.email);
+    if (exists) {
+      throw new Error('DUPLICATED');
+    }
+    const created = await newClient.save();
     return true;
   } catch (err) {
     if (err.message.startsWith('DUPLICATED')) {

@@ -85,7 +85,6 @@ const validateCPF = (cpf) => {
 };
 
 const validateCNPJ = (cnpj) => {
-  console.log('validating')
   if (!cnpj) return false;
 
   cnpj = cnpj.replace(/[^\d]+/g, '');
@@ -114,7 +113,7 @@ const validateCNPJ = (cnpj) => {
   let soma = 0;
   let pos = tamanho - 7;
 
-  for (i = tamanho; i >= 1; i--) {
+  for (let i = tamanho; i >= 1; i--) {
     soma += numeros.charAt(tamanho - i) * pos--;
     if (pos < 2) pos = 9;
   }
@@ -125,7 +124,7 @@ const validateCNPJ = (cnpj) => {
   numeros = cnpj.substring(0, tamanho);
   soma = 0;
   pos = tamanho - 7;
-  for (i = tamanho; i >= 1; i--) {
+  for (let i = tamanho; i >= 1; i--) {
     soma += numeros.charAt(tamanho - i) * pos--;
     if (pos < 2) pos = 9;
   }

@@ -19,9 +19,7 @@ export default function Home(props) {
         <link rel="icon" href="/favicon.ico" />
         <link href={'http://localhost:3000/'} rel="canonical" />
       </Head>
-
       <main id="top" className={styles.main}>
-        <MainNav />
         <section className={styles.sectionOne}>
           <div className={styles.logoMain}>
             <LarissaLogo animated color="#151515" />{' '}
@@ -109,7 +107,6 @@ export default function Home(props) {
             </div>
           </section>
         </section>
-        <Footer />
       </main>
     </div>
   );

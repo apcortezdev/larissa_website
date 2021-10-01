@@ -1,23 +1,9 @@
-import Head from 'next/head';
-import MainNav from '../components/UI/MainNav';
-import Footer from '../components/UI/Footer';
 import styles from '../styles/NotFound.module.scss';
 
 export default function NotFound() {
   return (
     <div className={styles.container}>
-      <Head>
-        <title>Larissa Paschoalotto</title>
-        <meta
-          name="description"
-          content="Escritório de Arquitetura Larissa Paschoalotto"
-        />
-        <link rel="icon" href="/favicon.ico" />
-        <link href={'http://localhost:3000/'} rel="canonical" />
-      </Head>
-
       <main id="top" className={styles.main}>
-        <MainNav />
         <article className={styles.content}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -31,7 +17,6 @@ export default function NotFound() {
           </svg>
           404 | Não encontrado
         </article>
-        <Footer />
       </main>
     </div>
   );

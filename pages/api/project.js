@@ -47,18 +47,21 @@ const post = async (req, res) => {
 };
 
 export default async function handler(req, res) {
-    const session = await getSession({ req: req });
-    const user = await getUserByEmail(session.user.email);
+  const session = await getSession({ req: req });
 
-    if (user.permission !== process.env.PERM_ADM) {
-      res.status(404).json({ message: 'Not Found.' });
-      return;
-    }
+  if (!session) {
+    res.status(401).json({ message: 'Unauthorized.' });
+    return;
+  }
 
   switch (req.method) {
     case 'GET':
       return await get(req, res);
     case 'POST':
+      const user = await getUserByEmail(session.user.email);
+      if (user.permission !== process.env.PERM_ADM) {
+        return res.status(403).json({ message: 'Forbidden.' });
+      }
       return await post(req, res);
     default:
       res.status(405).json({

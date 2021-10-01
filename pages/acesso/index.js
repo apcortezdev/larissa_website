@@ -33,11 +33,9 @@ export default function AcessoAdm({ projects }) {
           content="Escritório de Arquitetura Larissa Paschoalotto"
         />
         <link rel="icon" href="/favicon.ico" />
-        <link href={'http://localhost:3000/'} rel="canonical" />
+        <link href={'http://localhost:3000/acesso'} rel="canonical" />
       </Head>
-
       <main id="top" className={styles.main}>
-        <MainNav />
         <article className={styles.content}>
           <aside className={styles.menu}>
             <div className={styles.projMain}>
@@ -76,7 +74,6 @@ export default function AcessoAdm({ projects }) {
             )}
           </aside>
         </article>
-        <Footer />
       </main>
     </div>
   );
@@ -84,7 +81,7 @@ export default function AcessoAdm({ projects }) {
 
 export async function getServerSideProps(context) {
   const session = await getSession({ req: context.req });
-  
+
   if (!session) {
     return {
       notFound: true,

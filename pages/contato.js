@@ -1,11 +1,8 @@
 import Head from 'next/head';
-import LarissaLogo from '../components/UI/LarissaLogo';
-import Arquitetura from '../components/UI/Arquitetura';
-import MainNav from '../components/UI/MainNav';
-import Footer from '../components/UI/Footer';
-import Button from '../components/utils/Button';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import Arquitetura from '../components/UI/Arquitetura';
+import LarissaLogo from '../components/UI/LarissaLogo';
+import Button from '../components/utils/Button';
 import styles from '../styles/Contato.module.scss';
 
 export default function Contato(props) {
@@ -34,10 +31,9 @@ export default function Contato(props) {
           content="Escritório de Arquitetura Larissa Paschoalotto"
         />
         <link rel="icon" href="/favicon.ico" />
-        <link href={'http://localhost:3000/'} rel="canonical" />
+        <link href={'http://localhost:3000/contato'} rel="canonical" />
       </Head>
       <main id="top" className={styles.main}>
-        <MainNav />
         <div className={styles.content}>
           <section className={styles.section_header}>
             <div className={styles.section_header__left}>
@@ -136,7 +132,6 @@ export default function Contato(props) {
             </article>
           </section>
         </div>
-        <Footer />
       </main>
     </div>
   );

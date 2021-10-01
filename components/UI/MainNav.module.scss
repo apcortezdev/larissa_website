@@ -173,6 +173,18 @@
   }
 }
 
+.repoBox {
+  position: fixed;
+  color: map-get($map: $colors, $key: white);
+  height: 100%;
+  right: 0;
+  top: 0;
+  width: 100%;
+  max-width: 20rem;
+  background-color: map-get($map: $colors, $key: black);
+  padding: 2rem;
+}
+
 .loader,
 .loader:after {
   border-radius: 50%;

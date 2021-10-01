@@ -31,7 +31,11 @@ const loginIco = (
 
 export default function MainNav() {
   const router = useRouter();
-  const [session, loading] = useSession();
+  const [session] = useSession();
+  const [loading, setLoading] = useState(false);
+
+  const [checkOpenRepo, setCheckOpenRepo] = useState(false);
+  const [openRepo, setOpenRepo] = useState(false);
 
   // web menus
   const menuItemOne = useRef();
@@ -60,6 +64,26 @@ export default function MainNav() {
   const [emailValid, setEmailValid] = useState(true);
   const [password, setPassword] = useState('');
   const [passwordValid, setPasswordValid] = useState(true);
+
+  const checkUser = async () => {
+    setLoading(true);
+    setCheckOpenRepo(false);
+    const res = await fetch(`/api/user?email=${session.user.email}`);
+    const perm = await res.json();
+    setLoading(true);
+    if (perm.permission === 'adm') {
+      router.push({ pathname: '/acesso' });
+    } else if (perm.permission === 'cli') {
+      setLoading(false);
+      setOpenRepo(true);
+    }
+  };
+
+  useEffect(() => {
+    if (checkOpenRepo && session) {
+      checkUser();
+    }
+  });
 
   function mouseHoverList() {
     setMenuHover((state) => !state);
@@ -97,6 +121,7 @@ export default function MainNav() {
   async function log(event) {
     event.preventDefault();
     if (validate()) {
+      setLoading(true);
       const response = await signin('credentials', {
         redirect: false,
         email: email,
@@ -110,8 +135,9 @@ export default function MainNav() {
               'Ops, algo deu errado. Por favor, tente daqui a pouquinho!'
             );
           } else {
+            setCheckOpenRepo(true);
+            setLoading(false);
             setLogToggle(false);
-            router.push({ pathname: '/acesso' });
           }
           break;
         default:
@@ -290,6 +316,13 @@ export default function MainNav() {
                   </Button>
                 </>
               )}
+            </form>
+          </div>
+        )}
+        {openRepo && (
+          <div className={styles.repoBox}>
+            <form>
+              <p>meus arquivos</p>
             </form>
           </div>
         )}

@@ -1,12 +1,8 @@
 import Head from 'next/head';
-import LarissaLogo from '../components/UI/LarissaLogo';
-import Arquitetura from '../components/UI/Arquitetura';
-import MainNav from '../components/UI/MainNav';
-import Footer from '../components/UI/Footer';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
-import styles from '../styles/Galeria.module.scss';
+import { useState } from 'react';
 import { getGaleryPics } from '../data/web_pics';
+import styles from '../styles/Galeria.module.scss';
 
 const DisplayImage = ({ pic, display, onDismiss }) => {
   return (
@@ -70,11 +66,10 @@ export default function Galeria(props) {
           content="Escritório de Arquitetura Larissa Paschoalotto"
         />
         <link rel="icon" href="/favicon.ico" />
-        <link href={'http://localhost:3000/'} rel="canonical" />
+        <link href={'http://localhost:3000/galeria'} rel="canonical" />
       </Head>
 
       <main id="top" className={styles.main}>
-        <MainNav />
         <article className={styles.content}>
           <section className={styles.galery}>
             {galery.map((pic) => (
@@ -99,7 +94,6 @@ export default function Galeria(props) {
             ))}
           </section>
         </article>
-        <Footer />
       </main>
       <DisplayImage pic={imageCase} display={display} onDismiss={closeImage} />
     </div>

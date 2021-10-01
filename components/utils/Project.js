@@ -10,25 +10,46 @@ const Project = ({ project }) => {
             <tbody>
               <tr>
                 <td>Projeto:</td>
-                <td>{project.projName}</td>
+                <td>{project.name}</td>
                 <td>Criado Em:</td>
                 <td>{new Date(project.createdOn).toLocaleDateString()}</td>
               </tr>
               <tr>
                 <td>Cliente:</td>
-                <td>{`${project.clFirstName} ${project.clLastName}`}</td>
+                <td>{`${project.clientFirstName} ${project.clientLastName}`}</td>
                 <td>CPF/CNPJ:</td>
-                <td>{project.cpf_cnpj}</td>
+                <td>{project.clientCpfCnpj}</td>
               </tr>
               <tr>
                 <td>Telefone:</td>
-                <td>{project.phone}</td>
+                <td>
+                  {project.clientPhone?.length === 11
+                    ? `(${project.clientPhone.slice(
+                        0,
+                        2
+                      )}) ${project.clientPhone.slice(
+                        2,
+                        6
+                      )}-${project.clientPhone.slice(6)}`
+                    : `(${project.clientPhone.slice(
+                        0,
+                        2
+                      )}) ${project.clientPhone.slice(
+                        2,
+                        6
+                      )}-${project.clientPhone.slice(6)}`}
+                </td>
                 <td>Email:</td>
-                <td>{project.email}</td>
+                <td>{project.clientEmail}</td>
               </tr>
               <tr>
                 <td>Endereço:</td>
-                <td colspan={3}>{`${project.address1}, ${project.address2}, ${project.city} - ${project.state}`}</td>
+                <td colSpan={3}>{`${[
+                  project.address1 ? project.address1 : '',
+                  project.address2 ? project.address2 : '',
+                  project.city ? project.city : '',
+                  project.state ? project.state : '',
+                ].join(', ')}`}</td>
               </tr>
             </tbody>
           </table>
@@ -61,12 +82,12 @@ const Project = ({ project }) => {
 Project.propTypes = {
   project: PropTypes.shape({
     _id: PropTypes.string,
-    projName: PropTypes.string,
-    clFirstName: PropTypes.string,
-    clLastName: PropTypes.string,
-    email: PropTypes.string,
-    cpf_cnpj: PropTypes.string,
-    phone: PropTypes.string,
+    name: PropTypes.string,
+    clientFirstName: PropTypes.string,
+    clientLastName: PropTypes.string,
+    clientEmail: PropTypes.string,
+    clientCpfCnpj: PropTypes.string,
+    clientPhone: PropTypes.string,
     address1: PropTypes.string,
     address2: PropTypes.string,
     city: PropTypes.string,

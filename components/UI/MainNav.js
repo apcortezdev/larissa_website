@@ -1,10 +1,12 @@
 import Link from 'next/link';
+import { signin } from 'next-auth/client';
 import Backdrop from './Backdrop';
 import { useEffect, useRef, useState } from 'react';
 import styles from './MainNav.module.scss';
 import Button from '../utils/Button';
 import Dialog from '../UI/Dialog';
 import { useClickOutside } from '../../hooks/useClickOutside';
+import { validateEmail } from '../../util/frontValidation';
 
 const loginIco = (
   <svg
@@ -50,7 +52,9 @@ export default function MainModule() {
 
   // login
   const [email, setEmail] = useState('');
+  const [emailValid, setEmailValid] = useState(true);
   const [password, setPassword] = useState('');
+  const [passwordValid, setPasswordValid] = useState(true);
 
   function mouseHoverList() {
     setMenuHover((state) => !state);
@@ -65,8 +69,37 @@ export default function MainModule() {
     setMobileToggle((t) => !t);
   }
 
+  const validate = () => {
+    let valid = true;
+    setEmailValid(true);
+    setPasswordValid(true);
+
+    // email
+    if (!validateEmail(email)) {
+      setEmailValid(false);
+      valid = false;
+    }
+
+    // password
+    if (password.length <= 0) {
+      setPasswordValid(false);
+      valid = false;
+    }
+
+    return valid;
+  };
+
   function log(event) {
     event.preventDefault();
+    if (validate()) {
+      return;
+    }
+
+    // const response = await signin('credentials', {
+    //   redirect: false, // do not redirect to error page in fail case
+    //   email:  client.email, // prop added to 'credentials' obj
+    //   password:  client.password, // prop added to 'credentials' obj
+    //  });
   }
 
   function recoverPass() {
@@ -190,7 +223,14 @@ export default function MainModule() {
             </Link>
           </li>
         </ul>
-        <div className={styles.logbtn} onClick={() => setLogToggle((v) => !v)}>
+        <div
+          className={styles.logbtn}
+          onClick={() => {
+            setEmailValid(true);
+            setPasswordValid(true);
+            setLogToggle((v) => !v);
+          }}
+        >
           Login
         </div>
         {mobileToggle && <Backdrop onDismiss={mobilenav_toggle} />}
@@ -202,12 +242,14 @@ export default function MainModule() {
                 id="email"
                 placeholder="email"
                 onChange={(e) => setEmail(e.target.value)}
+                className={emailValid ? '' : styles.invalid}
               />
               <input
                 type="password"
                 id="password"
                 placeholder="senha"
                 onChange={(e) => setPassword(e.target.value)}
+                className={passwordValid ? '' : styles.invalid}
               />
               <p onClick={recoverPass}>esqueci minha senha</p>
               <Button style="primary" icon={loginIco} className={styles.enter}>

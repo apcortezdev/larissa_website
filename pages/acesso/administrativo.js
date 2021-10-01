@@ -1,13 +1,11 @@
 import Head from 'next/head';
-import LarissaLogo from '../../components/UI/LarissaLogo';
-import Arquitetura from '../../components/UI/Arquitetura';
 import MainNav from '../../components/UI/MainNav';
 import Footer from '../../components/UI/Footer';
-import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import styles from '../../styles/Acesso.module.scss';
 import Project from '../../components/utils/Project';
 import NewProject from '../../components/utils/NewProject';
+import { getProjects } from '../../data/project';
 
 export default function AcessoAdm({ projects }) {
   const [viewProj, setViewProj] = useState();
@@ -59,15 +57,18 @@ export default function AcessoAdm({ projects }) {
             </div>
             <ul>
               {projects.map((proj) => (
-                <li key={proj._id} onClick={() => openProj(event, proj)}>
-                  {proj.projName}
+                <li key={proj._id} onClick={(event) => openProj(event, proj)}>
+                  {proj.name}
                 </li>
               ))}
             </ul>
           </aside>
           <aside className={styles.session}>
             {newProject ? (
-              <NewProject onDismiss={() => setNewProject(false)} />
+              <NewProject
+                onDismiss={() => setNewProject(false)}
+                onNew={() => {}}
+              />
             ) : (
               <Project project={viewProj} onDismiss={closeProj} />
             )}
@@ -80,25 +81,11 @@ export default function AcessoAdm({ projects }) {
 }
 
 export async function getServerSideProps(context) {
-  const projects = [
-    {
-      _id: 'hasdkjflhsa456lkdf',
-      projName: 'Projeto Da Hannah',
-      clFirstName: 'Hannah',
-      clLastName: 'Fiorino',
-      email: 'hannah_fiorino@coldmail.com',
-      cpf_cnpj: '12345678901',
-      phone: '14995959595',
-      address1: 'Rua das Conchas Acústicas, 135',
-      address2: 'Bairro dos Talheres',
-      city: 'Camboítubiraba',
-      state: 'MG',
-      createdOn: new Date().toJSON(),
-    },
-  ];
+  const projects = await getProjects();
+
   return {
     props: {
-      projects: projects,
+      projects: JSON.parse(JSON.stringify(projects)),
     },
   };
 }

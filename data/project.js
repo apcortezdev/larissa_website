@@ -1,6 +1,6 @@
+import { postUser, getUserByEmail } from './user';
 import Project from '../models/project';
 import dbConnect from '../util/dbConnect';
-import { hash } from 'bcryptjs';
 import {
   validateIsValidName,
   validateEmail,
@@ -10,10 +10,6 @@ import {
   validatePhone,
   generateKey,
 } from '../util/backValidation';
-
-const hashPassword = async (password) => {
-  return await hash(password, 12);
-};
 
 const hasErrors = (project) => {
   // name
@@ -27,14 +23,20 @@ const hasErrors = (project) => {
   // firstName
   if (!project.firstName) {
     errors.push('Nome do Cliente obrigatório');
-  } else if (project.firstName < 2 || !validateIsValidName(project.firstName)) {
+  } else if (
+    project.firstName.length < 2 ||
+    !validateIsValidName(project.firstName)
+  ) {
     errors.push('Nome do Cliente inválido');
   }
 
   // lastName
   if (!project.lastName) {
     errors.push('Sobrenome do Cliente obrigatório');
-  } else if (project.lastName < 1 || !validateIsValidName(project.lastName)) {
+  } else if (
+    project.lastName.length < 1 ||
+    !validateIsValidName(project.lastName)
+  ) {
     errors.push('Sobrenome do Cliente inválido');
   }
 
@@ -77,26 +79,7 @@ const hasErrors = (project) => {
 
 export async function postProject(project) {
   const errors = hasErrors(project);
-
-  let newProject;
-  const passTemp = await generateKey(8);
-  if (errors.length === 0) {
-    const passTempHash = await hashPassword(passTemp);
-    newProject = new Project({
-      name: project.name,
-      firstName: project.firstName,
-      lastName: project.lastName,
-      email: project.email,
-      cpfCnpj: project.cpfCnpj,
-      phone: project.phone,
-      address1: project.address1,
-      address2: project.address2,
-      city: project.city,
-      state: project.state,
-      cep: project.cep,
-      hashPassword: passTempHash,
-    });
-  } else {
+  if (errors.length !== 0) {
     throw new Error('ERN0P1:' + errors.join(','));
   }
 
@@ -107,19 +90,57 @@ export async function postProject(project) {
   }
 
   try {
-    const exists = await Client.findOne().byEmail(validation.client.email);
-    if (exists) {
-      throw new Error('DUPLICATED');
+    let passTemp = null;
+    let user = await getUserByEmail(project.email);
+    if (!user) {
+      passTemp = await generateKey(8);
+      user = await postUser(project.email, passTemp);
     }
-    const created = await newClient.save();
-    return true;
+
+    let newProject;
+    newProject = new Project({
+      name: project.name,
+      client: user,
+      clientFirstName: project.firstName,
+      clientLastName: project.lastName,
+      clientEmail: project.email,
+      clientCpfCnpj: project.cpfCnpj,
+      clientPhone: project.phone,
+      address1: project.address1,
+      address2: project.address2,
+      city: project.city,
+      state: project.state,
+      cep: project.cep,
+    });
+    const created = await newProject.save();
+
+    // Send email to project.email here:
+    // - if passTemp not null, is new user, sent to create password
+    // - if passTemp null, new proj, sent saying the proj is online
+
+    return created;
   } catch (err) {
-    if (err.message.startsWith('DUPLICATED')) {
-      throw new Error('DUPLICATED');
-    } else {
-      throw new Error('ERN0C10: ' + err.message);
+    throw new Error('ERN0P3: ' + err.message);
+  }
+}
+
+export async function getProjects() {
+  let projects = [];
+
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0P4');
+  }
+
+  try {
+    projects = await Project.find();
+  } catch (err) {
+    if (err) {
+      throw new Error('ERN0P5');
     }
   }
+  return projects;
 }
 
 export async function passwordRecover(email, log) {

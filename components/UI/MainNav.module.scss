@@ -148,6 +148,10 @@
         outline: none;
       }
     }
+
+    .invalid {
+      background-color: map-get($map: $colors, $key: red-light);
+    }
   }
 
   .enter {
@@ -169,8 +173,10 @@
   position: relative;
   text-indent: -9999em;
   border-top: 1.1em solid map-get($map: $colors, $key: black-transparent-light);
-  border-right: 1.1em solid map-get($map: $colors, $key: black-transparent-light);
-  border-bottom: 1.1em solid map-get($map: $colors, $key: black-transparent-light);
+  border-right: 1.1em solid
+    map-get($map: $colors, $key: black-transparent-light);
+  border-bottom: 1.1em solid
+    map-get($map: $colors, $key: black-transparent-light);
   border-left: 1.1em solid map-get($map: $colors, $key: black);
   -webkit-transform: translateZ(0);
   -ms-transform: translateZ(0);

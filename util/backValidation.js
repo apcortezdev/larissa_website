@@ -136,7 +136,7 @@ const validateCNPJ = (cnpj) => {
 
 const validateIsValidName = (name) => {
   if (!name) return false;
-  return !/[^a-z\s]/gi.test(name);
+  return !/[^a-záâãéíóôõúü\s]/gi.test(name);
 };
 
 const validatePhone = (phone) => {

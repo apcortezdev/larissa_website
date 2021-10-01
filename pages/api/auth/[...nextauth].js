@@ -1,7 +1,7 @@
 import NextAuth from 'next-auth';
 import providers from 'next-auth/providers';
 import dbConnect from '../../../utils/dbConnect';
-import Client from '../../../models/client';
+import User from '../../../models/user';
 import { compare } from 'bcryptjs';
 
 export default NextAuth({
@@ -12,7 +12,7 @@ export default NextAuth({
     providers.Credentials({
       async authorize(credentials) {
         await dbConnect();
-        const user = await Client.findOne().byEmail(credentials.email);
+        const user = await User.findOne().byEmail(credentials.email);
         if (!user) {
           throw new Error('Not found');
         }
@@ -23,7 +23,6 @@ export default NextAuth({
         }
 
         return {
-          name: user.type === process.env.USERADM ? process.env.USERADM : user.name,
           email: user.email,
         };
       },

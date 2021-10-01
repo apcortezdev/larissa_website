@@ -17,71 +17,33 @@ const fileSchema = new Schema({
   },
 });
 
-const recoveryLogSchema = new Schema({
-  country_code: {
-    type: String,
-    required: true,
-  },
-  country_name: {
-    type: String,
-    required: true,
-  },
-  city: {
-    type: String,
-    required: true,
-  },
-  postal: {
-    type: String,
-    required: true,
-  },
-  latitude: {
-    type: String,
-    required: true,
-  },
-  longitude: {
-    type: String,
-    required: true,
-  },
-  IPv4: {
-    type: String,
-    required: true,
-  },
-  state: {
-    type: String,
-    required: true,
-  },
-  requestedOn: {
-    type: Date,
-    required: true,
-  },
-  recoveredOn: {
-    type: Date,
-    required: false,
-  },
-});
-
 const project = new Schema({
   name: {
     type: String,
     required: true,
   },
-  firstName: {
+  client: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+  clientFirstName: {
     type: String,
     required: true,
   },
-  lastName: {
+  clientLastName: {
     type: String,
     required: true,
   },
-  email: {
+  clientEmail: {
     type: String,
     required: true,
   },
-  cpfCnpj: {
+  clientCpfCnpj: {
     type: String,
     required: true,
   },
-  phone: {
+  clientPhone: {
     type: String,
     required: true,
   },
@@ -113,27 +75,6 @@ const project = new Schema({
     type: Date,
     default: new Date(),
   },
-  hashPassword: {
-    type: String,
-    required: true,
-  },
-  lastAccess: {
-    type: Date,
-    required: false,
-  },
-  lastRecoveryString: {
-    type: String,
-    required: false,
-  },
-  lastRecoveryTime: {
-    type: Date,
-    required: false,
-  },
-  lastRecoveryActive: {
-    type: Date,
-    required: false,
-  },
-  recoveryLogs: [recoveryLogSchema],
   files: [fileSchema],
 });
 

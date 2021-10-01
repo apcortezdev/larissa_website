@@ -2,8 +2,55 @@ import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
+const recoveryLogSchema = new Schema({
+  country_code: {
+    type: String,
+    required: true,
+  },
+  country_name: {
+    type: String,
+    required: true,
+  },
+  city: {
+    type: String,
+    required: true,
+  },
+  postal: {
+    type: String,
+    required: true,
+  },
+  latitude: {
+    type: String,
+    required: true,
+  },
+  longitude: {
+    type: String,
+    required: true,
+  },
+  IPv4: {
+    type: String,
+    required: true,
+  },
+  state: {
+    type: String,
+    required: true,
+  },
+  requestedOn: {
+    type: Date,
+    required: true,
+  },
+  recoveredOn: {
+    type: Date,
+    required: false,
+  },
+});
+
 const user = new Schema({
   email: {
+    type: String,
+    required: true,
+  },
+  permission: {
     type: String,
     required: true,
   },
@@ -11,10 +58,27 @@ const user = new Schema({
     type: String,
     required: true,
   },
-  lastActive: {
-    type: Date,
-    default: new Date(),
+  active: {
+    type: Boolean,
+    default: true,
   },
+  lastAccess: {
+    type: Date,
+    required: false,
+  },
+  lastRecoveryString: {
+    type: String,
+    required: false,
+  },
+  lastRecoveryTime: {
+    type: Date,
+    required: false,
+  },
+  lastRecoveryActive: {
+    type: Date,
+    required: false,
+  },
+  recoveryLogs: [recoveryLogSchema],
 });
 
 user.query.byEmail = function (email) {

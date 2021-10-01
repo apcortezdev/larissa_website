@@ -9,10 +9,11 @@ import {
   validateCNPJ,
   validatePhone,
   validateState,
+  validateIsValidName,
 } from '../../util/frontValidation';
 import Dialog from '../UI/Dialog';
 
-const NewProject = ({ onDismiss }) => {
+const NewProject = ({ onDismiss, onNew }) => {
   const name = useRef();
   const [nameValid, setNameValid] = useState(true);
   const [nameValidMessage, setNameValidMessage] = useState('Campo inválido');
@@ -68,7 +69,7 @@ const NewProject = ({ onDismiss }) => {
     setCepValid(true);
 
     // name
-    if (name.current.value.length < 5) {
+    if (name.current.value.length < 5 || !validateIsValidName(name.current.value.trim())) {
       setNameValidMessage('Obrigatório, mínimo de 5 letras');
       setNameValid(false);
       name.current.focus();
@@ -76,7 +77,7 @@ const NewProject = ({ onDismiss }) => {
     }
 
     // firstName
-    if (firstName.current.value.length < 2) {
+    if (firstName.current.value.length < 2 || !validateIsValidName(firstName.current.value.trim())) {
       setFirstNameValidMessage('Obrigatório, mínimo de 2 letras');
       setFirstNameValid(false);
       firstName.current.focus();
@@ -84,7 +85,7 @@ const NewProject = ({ onDismiss }) => {
     }
 
     // lastName
-    if (lastName.current.value.length < 1) {
+    if (lastName.current.value.length < 1 || !validateIsValidName(lastName.current.value.trim())) {
       setLastNameValidMessage('Campo obrigatório');
       setLastNameValid(false);
       lastName.current.focus();
@@ -168,8 +169,12 @@ const NewProject = ({ onDismiss }) => {
       switch (response.status) {
         case 201:
           const data = await response.json();
+          onNew(data.project);
           setDialogMessage('Salvo com Sucesso!');
-          setOnOkFunc(() => () => setShowDialog(false));
+          setOnOkFunc(() => () => {
+            setShowDialog(false);
+            onDismiss();
+          });
           setShowDialog(true);
           break;
         case 400:
@@ -333,7 +338,8 @@ const NewProject = ({ onDismiss }) => {
 };
 
 NewProject.propTypes = {
-  onDismiss: PropTypes.func,
+  onDismiss: PropTypes.func.isRequired,
+  onNew: PropTypes.func.isRequired,
 };
 
 export default NewProject;

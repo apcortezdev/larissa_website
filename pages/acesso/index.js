@@ -1,14 +1,28 @@
 import Head from 'next/head';
-import LarissaLogo from '../../components/UI/LarissaLogo';
-import Arquitetura from '../../components/UI/Arquitetura';
+import { getSession } from 'next-auth/client';
 import MainNav from '../../components/UI/MainNav';
 import Footer from '../../components/UI/Footer';
-import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
-import styles from '../../styles/Galeria.module.scss';
+import { useState } from 'react';
+import styles from '../../styles/Acesso.module.scss';
+import Project from '../../components/utils/Project';
+import NewProject from '../../components/utils/NewProject';
+import { getProjects } from '../../data/project';
+import { getUserByEmail } from '../../data/user';
 
-export default function Galeria(props) {
+export default function AcessoAdm({ projects }) {
+  const [viewProj, setViewProj] = useState();
+  const [newProject, setNewProject] = useState(false);
 
+  const openProj = (event, proj) => {
+    event.preventDefault();
+    setNewProject(false);
+    setViewProj(proj);
+  };
+
+  const closeProj = (event) => {
+    event.preventDefault();
+    setViewProj(null);
+  };
 
   return (
     <div className={styles.container}>
@@ -25,7 +39,42 @@ export default function Galeria(props) {
       <main id="top" className={styles.main}>
         <MainNav />
         <article className={styles.content}>
-          CONTENT
+          <aside className={styles.menu}>
+            <div className={styles.projMain}>
+              <span>Projetos</span>
+              <span
+                className={styles.newProj}
+                onClick={() => setNewProject(true)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  viewBox="0 0 16 16"
+                >
+                  <path d="M8 0a1 1 0 0 1 1 1v6h6a1 1 0 1 1 0 2H9v6a1 1 0 1 1-2 0V9H1a1 1 0 0 1 0-2h6V1a1 1 0 0 1 1-1z" />
+                </svg>
+              </span>
+            </div>
+            <ul>
+              {projects.map((proj) => (
+                <li key={proj._id} onClick={(event) => openProj(event, proj)}>
+                  {proj.name}
+                </li>
+              ))}
+            </ul>
+          </aside>
+          <aside className={styles.session}>
+            {newProject ? (
+              <NewProject
+                onDismiss={() => setNewProject(false)}
+                onNew={() => {}}
+              />
+            ) : (
+              <Project project={viewProj} onDismiss={closeProj} />
+            )}
+          </aside>
         </article>
         <Footer />
       </main>
@@ -33,8 +82,28 @@ export default function Galeria(props) {
   );
 }
 
-export async function getStaticProps(context) {
+export async function getServerSideProps(context) {
+  const session = await getSession({ req: context.req });
+  
+  if (!session) {
+    return {
+      notFound: true,
+    };
+  }
+  const user = await getUserByEmail(session.user.email);
+
+  if (user.permission !== process.env.PERM_ADM) {
+    return {
+      notFound: true,
+    };
+  }
+
+  const projects = await getProjects();
+
   return {
-    props: {},
+    props: {
+      projects: JSON.parse(JSON.stringify(projects)),
+      session: session,
+    },
   };
 }

@@ -1,5 +1,6 @@
-// import { getSession } from 'next-auth/client';
+import { getSession } from 'next-auth/client';
 import { postProject } from '../../data/project';
+import { getUserByEmail } from '../../data/user';
 
 const get = async (req, res) => {
   try {
@@ -46,12 +47,13 @@ const post = async (req, res) => {
 };
 
 export default async function handler(req, res) {
-  //   const session = await getSession({ req: req });
+    const session = await getSession({ req: req });
+    const user = await getUserByEmail(session.user.email);
 
-  //   if (!session || session.user.name !== process.env.USERADM) {
-  //     res.status(404).json({ message: 'Not Found.' });
-  //     return;
-  //   }
+    if (user.permission !== process.env.PERM_ADM) {
+      res.status(404).json({ message: 'Not Found.' });
+      return;
+    }
 
   switch (req.method) {
     case 'GET':

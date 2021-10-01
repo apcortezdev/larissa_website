@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth';
 import providers from 'next-auth/providers';
-import dbConnect from '../../../utils/dbConnect';
+import dbConnect from '../../../util/dbConnect';
 import User from '../../../models/user';
 import { compare } from 'bcryptjs';
 

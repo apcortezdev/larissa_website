@@ -1,0 +1,29 @@
+@import '../styles/_colors.scss';
+@import '../styles/_mixin.scss';
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: map-get($map: $colors, $key: white);
+}
+
+.main {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.content {
+  width: 100%;
+  min-height: calc(100vh - 14rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  svg {
+      margin-bottom: 1rem;
+  }
+}

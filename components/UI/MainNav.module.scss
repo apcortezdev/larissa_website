@@ -159,6 +159,18 @@
     width: 10rem;
     border: 1px solid map-get($map: $colors, $key: white);
   }
+
+  .btnStatic {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-self: flex-end;
+    width: 10rem;
+    height: 3rem;
+    background-color: map-get($map: $colors, $key: black);
+    color: map-get($map: $colors, $key: white);
+    border: 1px solid map-get($map: $colors, $key: white);
+  }
 }
 
 .loader,

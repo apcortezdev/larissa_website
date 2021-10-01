@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { signin } from 'next-auth/client';
+import { useSession } from 'next-auth/client';
 import Backdrop from './Backdrop';
 import { useEffect, useRef, useState } from 'react';
 import styles from './MainNav.module.scss';
@@ -7,6 +8,7 @@ import Button from '../utils/Button';
 import Dialog from '../UI/Dialog';
 import { useClickOutside } from '../../hooks/useClickOutside';
 import { validateEmail } from '../../util/frontValidation';
+import { useRouter } from 'next/router';
 
 const loginIco = (
   <svg
@@ -27,7 +29,10 @@ const loginIco = (
   </svg>
 );
 
-export default function MainModule() {
+export default function MainNav() {
+  const router = useRouter();
+  const [session, loading] = useSession();
+
   // web menus
   const menuItemOne = useRef();
   const menuItemTwo = useRef();
@@ -89,22 +94,39 @@ export default function MainModule() {
     return valid;
   };
 
-  function log(event) {
+  async function log(event) {
     event.preventDefault();
     if (validate()) {
-      return;
+      const response = await signin('credentials', {
+        redirect: false,
+        email: email,
+        password: password,
+      });
+      switch (response.status) {
+        case 200:
+          if (response.error) {
+            setNoButtons(false);
+            setDialogMessage(
+              'Ops, algo deu errado. Por favor, tente daqui a pouquinho!'
+            );
+          } else {
+            setLogToggle(false);
+            router.push({ pathname: '/acesso' });
+          }
+          break;
+        default:
+          setNoButtons(false);
+          setDialogMessage(
+            'Ops, algo deu errado. Por favor, tente daqui a pouquinho!'
+          );
+          break;
+      }
     }
-
-    // const response = await signin('credentials', {
-    //   redirect: false, // do not redirect to error page in fail case
-    //   email:  client.email, // prop added to 'credentials' obj
-    //   password:  client.password, // prop added to 'credentials' obj
-    //  });
   }
 
   function recoverPass() {
     setMessage(
-      'Esqueceu sua senha? Iremos lhe enviar um email para recuperação de senha'
+      'Esqueceu sua senha? Iremos lhe enviar um email para recuperação de senha.'
     );
     setOnOk(() => () => recover());
     setOnCancel(() => () => setShow(false));
@@ -231,7 +253,7 @@ export default function MainModule() {
             setLogToggle((v) => !v);
           }}
         >
-          Login
+          {session ? 'Projeto' : 'Login'}
         </div>
         {mobileToggle && <Backdrop onDismiss={mobilenav_toggle} />}
         {logToggle && (
@@ -251,10 +273,23 @@ export default function MainModule() {
                 onChange={(e) => setPassword(e.target.value)}
                 className={passwordValid ? '' : styles.invalid}
               />
-              <p onClick={recoverPass}>esqueci minha senha</p>
-              <Button style="primary" icon={loginIco} className={styles.enter}>
-                Entrar
-              </Button>
+              {loading ? (
+                <>
+                  <p>esqueci minha senha</p>
+                  <div className={styles.btnStatic}>Carregando...</div>
+                </>
+              ) : (
+                <>
+                  <p onClick={recoverPass}>esqueci minha senha</p>
+                  <Button
+                    style="primary"
+                    icon={loginIco}
+                    className={styles.enter}
+                  >
+                    Entrar
+                  </Button>
+                </>
+              )}
             </form>
           </div>
         )}

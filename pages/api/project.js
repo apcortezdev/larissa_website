@@ -14,10 +14,18 @@ export default async function handler(req, res) {
       const newProject = await postProject(req.body.project);
       res.status(201).json({ statusCode: '201', project: newProject });
     } catch (err) {
-      res.status(500).json({
-        statusCode: '500',
-        message: 'ERROR: ' + err.message,
-      });
+      console.log(err);
+      if (err.message.startsWith('ERN0P1')) {
+        res.status(400).json({
+          statusCode: '400',
+          message: err.message.slice(7),
+        });
+      } else {
+        res.status(500).json({
+          statusCode: '500',
+          message: 'ERROR: ' + err.message,
+        });
+      }
     }
     //   } else if (req.method === 'DELETE') {
     //     try {

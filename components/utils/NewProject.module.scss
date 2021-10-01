@@ -25,11 +25,13 @@
       }
 
       .inputCity {
-        width: calc(100% - 6rem);
+        width: calc(100% - 14rem);
       }
       .inputState {
         width: 5rem;
-        text-transform: uppercase;
+      }
+      .inputCep {
+        width: 7rem;
       }
     }
     & > span:last-of-type {
@@ -45,7 +47,7 @@
     }
 
     .button {
-        width: 10rem;
+      width: 10rem;
     }
   }
 }

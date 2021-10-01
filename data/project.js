@@ -1,101 +1,115 @@
 import Project from '../models/project';
 import dbConnect from '../util/dbConnect';
 import { hash } from 'bcryptjs';
-import { generateKey } from '../utils/backValidation';
+import {
+  validateIsValidName,
+  validateEmail,
+  validateCPF,
+  validateCNPJ,
+  validateState,
+  validatePhone,
+  generateKey,
+} from '../util/backValidation';
 
 const hashPassword = async (password) => {
   return await hash(password, 12);
 };
 
-const validate = (project) => {
-  const result = {
-    isValid: true,
-    client: project,
-    error: '',
-  };
-
-  // validate name
-  if (name.length <= 0 || !validateIsValidName(name)) {
-    result.error = 'Invalid name';
-  } else if (!validateIsFullName(name)) {
-    result.error = 'Not a full name';
-  }
-  if (result.error.length > 0) {
-    result.isValid = false;
-    return result;
+const hasErrors = (project) => {
+  // name
+  let errors = [];
+  if (!project.name) {
+    errors.push('Nome do Projeto obrigatório');
+  } else if (project.name.length < 5 || !validateIsValidName(project.name)) {
+    errors.push('Nome do Projeto inválido');
   }
 
-  // validate email
-  if (email.length <= 0 || !validateEmail(email)) {
-    result.error = 'Invalid email';
-    result.isValid = false;
-    return result;
+  // firstName
+  if (!project.firstName) {
+    errors.push('Nome do Cliente obrigatório');
+  } else if (project.firstName < 2 || !validateIsValidName(project.firstName)) {
+    errors.push('Nome do Cliente inválido');
   }
 
-  // validate CPF
-  if (cpf.length <= 0 || !validateCPF(cpf)) {
-    result.error = 'Invalid cpf';
-    result.isValid = false;
-    return result;
+  // lastName
+  if (!project.lastName) {
+    errors.push('Sobrenome do Cliente obrigatório');
+  } else if (project.lastName < 1 || !validateIsValidName(project.lastName)) {
+    errors.push('Sobrenome do Cliente inválido');
   }
 
-  // validate phone
-  if (!validatePhone(phone)) {
-    result.error = 'Invalid phone';
-    result.isValid = false;
-    return result;
+  // email
+  if (!project.email) {
+    errors.push('Email obrigatório');
+  } else if (!validateEmail(project.email)) {
+    errors.push('Email inválido');
   }
 
-  // validate password
-  if (!validatePasswordLength(password)) {
-    result.error = 'Password too short';
-  } else if (!validatePasswordStrength(password)) {
-    result.error = 'Password too week';
-  }
-  if (result.error.length > 0) {
-    result.isValid = false;
-    return result;
-  }
-
-  // validate password confirmation
-  if (password !== passwordConf) {
-    result.error = "Password and Password Confirmation don't match";
-    result.isValid = false;
-    return result;
+  // cpf/cnpj
+  // console.log(validateCNPJ(project.cpfCnpj))
+  if (
+    !project.cpfCnpj ||
+    (project.cpfCnpj.length !== 11 && project.cpfCnpj.length !== 14) ||
+    (project.cpfCnpj.length === 11 && !validateCPF(project.cpfCnpj)) ||
+    (project.cpfCnpj === 14 && !validateCNPJ(project.cpfCnpj))
+  ) {
+    errors.push('CPF/CNPJ inválido');
   }
 
-  return result;
+  // phone
+  if (!project.phone) {
+    errors.push('Telefone obrigatório');
+  } else if (!validatePhone(project.phone)) {
+    errors.push('Telefone inválido');
+  }
+
+  // UF
+  if (project.state?.length > 0 && !validateState(project.state)) {
+    errors.push('UF inválido');
+  }
+
+  // CEP
+  if (project.cep?.length > 0 && project.cep?.length < 8) {
+    errors.push('CEP inválido');
+  }
+
+  return errors;
 };
 
 export async function postProject(project) {
-  // const validation = validate(project);
-  console.log('Here');
-  // let newProject;
+  console.log(project);
+  const errors = hasErrors(project);
 
-  // if (validation.isValid) {
-  //   newProject = new Client({
-  //     name: validation.client.name,
-  //     email: validation.client.email,
-  //     cpf: validation.client.cpf,
-  //     phone: validation.client.phone,
-  //     type: process.env.USERCLI,
-  //     hashPassword: await hashPassword(validation.client.password),
-  //   });
-  // } else {
-  //   throw new Error('ERN0C1: Invalid - ' + validation.error);
-  // }
+  let newProject;
+  const passTemp = await generateKey(8);
+  if (errors.length === 0) {
+    const passTempHash = await hashPassword(passTemp);
+    newProject = new Project({
+      name: project.name,
+      firstName: project.firstName,
+      lastName: project.lastName,
+      email: project.email,
+      cpfCnpj: project.cpfCnpj,
+      phone: project.phone,
+      address1: project.address1,
+      address2: project.address2,
+      city: project.city,
+      state: project.state,
+      cep: project.cep,
+      hashPassword: passTempHash,
+    });
+  } else {
+    throw new Error('ERN0P1:' + errors.join(','));
+  }
 
   try {
     await dbConnect();
   } catch (err) {
-    console.log(err);
-    throw new Error('ERN0C1: ' + err.message);
+    throw new Error('ERN0P2: ' + err.message);
   }
-  console.log('Connected');
 
   try {
     // const exists = await Client.findOne().byEmail(validation.client.email);
-    console.log('Connected');
     // if (exists) {
     //   throw new Error('DUPLICATED');
     // }

@@ -77,21 +77,13 @@ const project = new Schema({
     type: String,
     required: true,
   },
-  cpf_cnpj: {
+  cpfCnpj: {
     type: String,
     required: true,
   },
   phone: {
     type: String,
     required: true,
-  },
-  hashPassword: {
-    type: String,
-    required: true,
-  },
-  lastAccess: {
-    type: Date,
-    default: new Date(),
   },
   address1: {
     type: String,
@@ -121,9 +113,17 @@ const project = new Schema({
     type: Date,
     default: new Date(),
   },
-  lastRecoveryString: {
+  hashPassword: {
     type: String,
     required: true,
+  },
+  lastAccess: {
+    type: Date,
+    required: false,
+  },
+  lastRecoveryString: {
+    type: String,
+    required: false,
   },
   lastRecoveryTime: {
     type: Date,

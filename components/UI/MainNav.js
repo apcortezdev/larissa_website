@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { signin } from 'next-auth/client';
+import { signin, signOut } from 'next-auth/client';
 import { useSession } from 'next-auth/client';
 import Backdrop from './Backdrop';
 import { useEffect, useRef, useState } from 'react';
@@ -32,10 +32,10 @@ const loginIco = (
 export default function MainNav() {
   const router = useRouter();
   const [session] = useSession();
+  const [permission, setPermission] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const [checkOpenRepo, setCheckOpenRepo] = useState(false);
   const [openRepo, setOpenRepo] = useState(false);
+  const [checkLogin, setCheckLogin] = useState(false);
 
   // web menus
   const menuItemOne = useRef();
@@ -48,7 +48,7 @@ export default function MainNav() {
   const [menuWidth, setMenuWidth] = useState(0);
   const [menuLeft, setMenuLeft] = useState(0);
 
-  // log bos
+  // log box
   const logBox = useRef();
   const [logToggle, setLogToggle] = useState(false);
   useClickOutside(logBox, () => setLogToggle(false));
@@ -65,23 +65,20 @@ export default function MainNav() {
   const [password, setPassword] = useState('');
   const [passwordValid, setPasswordValid] = useState(true);
 
-  const checkUser = async () => {
-    setLoading(true);
-    setCheckOpenRepo(false);
+  const getUserPermission = async () => {
     const res = await fetch(`/api/user?email=${session.user.email}`);
     const perm = await res.json();
-    setLoading(true);
-    if (perm.permission === 'adm') {
-      router.push({ pathname: '/acesso' });
-    } else if (perm.permission === 'cli') {
-      setLoading(false);
-      setOpenRepo(true);
-    }
+    setPermission(perm.permission);
+    return perm.permission;
   };
 
   useEffect(() => {
-    if (checkOpenRepo && session) {
-      checkUser();
+    if (checkLogin && session) {
+      setCheckLogin(false);
+      getUserPermission().then((perm) => {
+        setLogToggle(false);
+        openDrawer(perm);
+      });
     }
   });
 
@@ -118,7 +115,7 @@ export default function MainNav() {
     return valid;
   };
 
-  async function log(event) {
+  async function login(event) {
     event.preventDefault();
     if (validate()) {
       setLoading(true);
@@ -131,13 +128,11 @@ export default function MainNav() {
         case 200:
           if (response.error) {
             setNoButtons(false);
-            setDialogMessage(
+            setDiainMessage(
               'Ops, algo deu errado. Por favor, tente daqui a pouquinho!'
             );
           } else {
-            setCheckOpenRepo(true);
-            setLoading(false);
-            setLogToggle(false);
+            setCheckLogin(true);
           }
           break;
         default:
@@ -149,6 +144,27 @@ export default function MainNav() {
       }
     }
   }
+
+  async function logout(event) {
+    event.preventDefault();
+    signOut();
+  }
+
+  const openDrawer = (perm) => {
+    if (session) {
+      const p = perm || permission;
+      if (p === 'adm') {
+        router.push({ pathname: '/acesso' });
+      } else if (p === 'cli') {
+        setOpenRepo((v) => !v);
+      }
+      setLoading(false);
+    } else {
+      setEmailValid(true);
+      setPasswordValid(true);
+      setLogToggle((v) => !v);
+    }
+  };
 
   function recoverPass() {
     setMessage(
@@ -271,20 +287,13 @@ export default function MainNav() {
             </Link>
           </li>
         </ul>
-        <div
-          className={styles.logbtn}
-          onClick={() => {
-            setEmailValid(true);
-            setPasswordValid(true);
-            setLogToggle((v) => !v);
-          }}
-        >
+        <div className={styles.logbtn} onClick={() => openDrawer(null)}>
           {session ? 'Projeto' : 'Login'}
         </div>
         {mobileToggle && <Backdrop onDismiss={mobilenav_toggle} />}
         {logToggle && (
           <div className={styles.logBox} ref={logBox}>
-            <form onSubmit={log}>
+            <form onSubmit={login}>
               <input
                 type="email"
                 id="email"
@@ -319,13 +328,29 @@ export default function MainNav() {
             </form>
           </div>
         )}
-        {openRepo && (
-          <div className={styles.repoBox}>
+        <div
+          className={[styles.repoBox, openRepo ? styles.repoOn : ''].join(' ')}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="currentColor"
+            className={styles.leftIcon}
+            viewBox="0 0 16 16"
+            onClick={() => openDrawer(null)}
+          >
+            <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z" />
+          </svg>
+          {openRepo && (
             <form>
               <p>meus arquivos</p>
             </form>
-          </div>
-        )}
+          )}
+          <p className={styles.logout} onClick={logout}>
+            logout
+          </p>
+        </div>
       </div>
       <Dialog show={show} onOk={onOk} onCancel={onCancel}>
         {message || <div className={styles.loader}>Carregando</div>}

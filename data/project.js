@@ -1,4 +1,4 @@
-import { postUser, getUserByEmail } from './user';
+import { postUser, getUserByEmail, sendEmail } from './user';
 import Project from '../models/project';
 import dbConnect from '../util/dbConnect';
 import {
@@ -114,9 +114,11 @@ export async function postProject(project) {
     });
     const created = await newProject.save();
 
-    // Send email to project.email here:
-    // - if passTemp not null, is new user, sent to create password
-    // - if passTemp null, new proj, sent saying the proj is online
+    if (passTemp) {
+      sendEmail('new', user, passTemp);
+    } else {
+      sendEmail('notification', user, passTemp);
+    }
 
     return created;
   } catch (err) {
@@ -141,34 +143,4 @@ export async function getProjects() {
     }
   }
   return projects;
-}
-
-export async function passwordRecover(email, log) {
-  try {
-    await dbConnect();
-  } catch (err) {
-    throw new Error('ERN0C1: ' + err.message);
-  }
-
-  try {
-    const project = await Project.findOne().byEmail(email);
-    if (!project) {
-      throw new Error('404');
-    }
-    const date = new Date();
-    const requested = await Project.findByIdAndUpdate(project._id, {
-      lastRecoveryString: await generateKey(20),
-      lastRecoveryTime: date,
-      lastRecoveryActive: true,
-      recoveryLogs: project.recoveryLogs.push({ ...log, requestedOn: date }),
-    });
-
-    return requested.email;
-  } catch (err) {
-    if (err.message.startsWith('404')) {
-      throw new Error('404');
-    } else {
-      throw new Error('ERN0C10: ' + err.message);
-    }
-  }
 }

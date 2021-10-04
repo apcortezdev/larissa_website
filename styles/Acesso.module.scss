@@ -54,6 +54,16 @@
       }
     }
   }
+
+  .exit {
+    position: absolute;
+    bottom: 1rem;
+    
+    :hover {
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  }
 }
 
 .session {

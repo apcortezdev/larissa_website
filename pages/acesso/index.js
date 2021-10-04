@@ -1,7 +1,5 @@
 import Head from 'next/head';
-import { getSession } from 'next-auth/client';
-import MainNav from '../../components/UI/MainNav';
-import Footer from '../../components/UI/Footer';
+import { getSession, signOut } from 'next-auth/client';
 import { useState } from 'react';
 import styles from '../../styles/Acesso.module.scss';
 import Project from '../../components/utils/Project';
@@ -23,6 +21,11 @@ export default function AcessoAdm({ projects }) {
     event.preventDefault();
     setViewProj(null);
   };
+
+  function logout(event) {
+    event.preventDefault();
+    signOut();
+  }
 
   return (
     <div className={styles.container}>
@@ -62,6 +65,9 @@ export default function AcessoAdm({ projects }) {
                 </li>
               ))}
             </ul>
+            <div className={styles.exit} onClick={logout}>
+              <span>Sair</span>
+            </div>
           </aside>
           <aside className={styles.session}>
             {newProject ? (
@@ -84,7 +90,10 @@ export async function getServerSideProps(context) {
 
   if (!session) {
     return {
-      notFound: true,
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
     };
   }
   const user = await getUserByEmail(session.user.email);

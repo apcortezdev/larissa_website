@@ -47,14 +47,14 @@ export async function getUserByEmail(email) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN0P2: ' + err.message);
+    throw new Error('ERN0U5: ' + err.message);
   }
 
   try {
     let user = await User.findOne().byEmail(email);
     return user;
   } catch (err) {
-    throw new Error('ERN0C10: ' + err.message);
+    throw new Error('ERN0U6: ' + err.message);
   }
 }
 
@@ -62,7 +62,7 @@ export async function authenticate(email, password) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN0C1: ' + err.message);
+    throw new Error('ERN0U7: ' + err.message);
   }
 
   try {
@@ -85,9 +85,18 @@ export async function authenticate(email, password) {
     if (err.message.startsWith('404')) {
       throw new Error('404');
     } else {
-      throw new Error('ERN0C10: ' + err.message);
+      throw new Error('ERN0U8: ' + err.message);
     }
   }
+}
+
+export async function sendEmail(type = 'new', user, tempPassword) {
+  if (type === 'new') {
+    // send email to new user w/ temp password
+  } else {
+    // send notification proj is on
+  }
+  return false;
 }
 
 export async function passwordRecover(email, log) {

@@ -174,15 +174,34 @@
 }
 
 .repoBox {
+  z-index: 19;
   position: fixed;
   color: map-get($map: $colors, $key: white);
-  height: 100%;
-  right: 0;
+  height: 100vh;
+  right: -100%;
   top: 0;
   width: 100%;
-  max-width: 20rem;
+  max-width: 23rem;
   background-color: map-get($map: $colors, $key: black);
   padding: 2rem;
+  transition: all 0.2s ease-in-out;
+
+  .leftIcon {
+    position: absolute;
+    right: 2rem;
+    cursor: pointer;
+  }
+
+  .logout {
+    position: absolute;
+    right: 2rem;
+    bottom: 0;
+    cursor: pointer;
+  }
+}
+
+.repoOn {
+  right: 0;
 }
 
 .loader,

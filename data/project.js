@@ -1,6 +1,7 @@
-import { postUser, getUserByEmail, sendEmail } from './user';
-import Project from '../models/project';
 import dbConnect from '../util/dbConnect';
+import User from '../models/user';
+import Project from '../models/project';
+import { postUser, getUserByEmail, sendEmail } from './user';
 import {
   validateIsValidName,
   validateEmail,
@@ -136,11 +137,77 @@ export async function getProjects() {
   }
 
   try {
-    projects = await Project.find();
+    projects = await Project.find().select(
+      '_id name clientFirstName clientLastName clientEmail clientCpfCnpj clientPhone address1 address2 city state cep createdOn files'
+    );
   } catch (err) {
     if (err) {
       throw new Error('ERN0P5');
     }
   }
   return projects;
+}
+
+export async function getProjectsByClientEmail(email) {
+  let projects = [];
+  let user;
+
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0P6');
+  }
+
+  try {
+    user = await User.findOne().byEmail(email).select('_id email permission');
+    projects = await Project.find().byEmail(email).select('_id name files');
+  } catch (err) {
+    if (err) {
+      throw new Error('ERN0P7');
+    }
+  }
+  return { client: user, projects };
+}
+
+export async function addFilesToProject(_id, files) {
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0P8');
+  }
+
+  try {
+    let project = await Project.findById(_id);
+    project.files = project.files.concat(files);
+    return await project.save();
+  } catch (err) {
+    if (err) {
+      throw new Error('ERN0P9');
+    }
+  }
+  return { project: project };
+}
+
+export async function removeFilesFromProject(projId, fileId) {
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0P10');
+  }
+
+  try {
+    let project = await Project.findById(projId);
+    let newFiles = [];
+    for (let i = 0; i < project.files.length; i++) {
+      const file = project.files[i];
+      if (file._id.toString() !== fileId) newFiles.push(file);
+    }
+    project.files = newFiles;
+    return await project.save();
+  } catch (err) {
+    if (err) {
+      throw new Error('ERN0P11');
+    }
+  }
+  return { project: project };
 }

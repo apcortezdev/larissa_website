@@ -1,12 +1,32 @@
 import { getSession } from 'next-auth/client';
-import { postProject } from '../../data/project';
+import { postProject, getProjectsByClientEmail } from '../../data/project';
 import { getUserByEmail } from '../../data/user';
 
 const get = async (req, res) => {
   try {
-    console.log(req.query);
-    res.status(200).json({ statusCode: '200' });
+    const projs = await getProjectsByClientEmail(req.query.email);
+    let perm;
+    if (projs.client.permission === process.env.PERM_ADM) {
+      perm = 'adm';
+    } else {
+      perm = 'cli';
+    }
+    res.status(200).json({
+      statusCode: '200',
+      client: {
+         email: projs.client.email,
+         permission: perm 
+        },
+      projects: projs.projects,
+    });
   } catch (err) {
+    if (err.message === '404') {
+      res.status(404).json({
+        statusCode: '404',
+        message: 'Projects not found',
+      });
+      return;
+    }
     res.status(500).json({
       statusCode: '500',
       message: 'ERROR UPDATING COLOR: ' + err.message,
@@ -56,6 +76,9 @@ export default async function handler(req, res) {
 
   switch (req.method) {
     case 'GET':
+      if (session.user.email !== req.query.email) {
+        return res.status(403).json({ message: 'Forbidden.' });
+      }
       return await get(req, res);
     case 'POST':
       const user = await getUserByEmail(session.user.email);

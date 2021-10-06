@@ -1,0 +1,62 @@
+@import '../../styles/_colors.scss';
+
+.blocker {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  cursor: wait;
+  background-color: transparent;
+}
+
+.content {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  width: 3.7rem;
+  height: 3.7rem;
+  border-radius: 3.5rem;
+  bottom: 1rem;
+  left: 1rem;
+  background-color: map-get($map: $colors, $key: black);
+  border: 1px solid map-get($map: $colors, $key: white);
+}
+
+.lds_loader {
+  display: inline-block;
+  position: relative;
+  width: 3.7rem;
+  height: 3.7rem;
+}
+.lds_loader div {
+  display: inline-block;
+  position: absolute;
+  left: 0.8rem;
+  width: 0.5rem;
+  background: map-get($map: $colors, $key: white);
+  animation: lds_loader 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
+}
+.lds_loader div:nth-child(1) {
+  left: 0.8rem;
+  animation-delay: -0.24s;
+}
+.lds_loader div:nth-child(2) {
+  left: 1.5rem;
+  animation-delay: -0.12s;
+}
+.lds_loader div:nth-child(3) {
+  left: 2.3rem;
+  animation-delay: 0;
+}
+@keyframes lds_loader {
+  0% {
+    top: 0.65rem;
+    height: 2.5rem;
+  }
+  50%,
+  100% {
+    top: 1.2rem;
+    height: 1.5rem;
+  }
+}

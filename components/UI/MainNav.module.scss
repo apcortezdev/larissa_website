@@ -97,7 +97,7 @@
 .logbtn {
   background-color: map-get($map: $colors, $key: black);
   color: map-get($map: $colors, $key: white);
-  width: 8rem;
+  width: 9rem;
   height: 2.5rem;
   display: flex;
   justify-content: center;
@@ -183,12 +183,36 @@
   width: 100%;
   max-width: 23rem;
   background-color: map-get($map: $colors, $key: black);
-  padding: 2rem;
+  padding: 3rem 2rem 2rem 2rem;
   transition: all 0.2s ease-in-out;
+
+  .projectTabs {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    & > div {
+      width: 4rem;
+      text-align: center;
+      border: 1px solid map-get($map: $colors, $key: grey);
+      cursor: pointer;
+    }
+    > div:last-of-type {
+      cursor: unset;
+      width: 100%;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      border-bottom: 1px solid map-get($map: $colors, $key: grey);
+    }
+    .activeTab {
+      border-bottom: 1px solid map-get($map: $colors, $key: black);
+    }
+  }
 
   .leftIcon {
     position: absolute;
     right: 2rem;
+    top: 2rem;
     cursor: pointer;
   }
 
@@ -198,52 +222,105 @@
     bottom: 0;
     cursor: pointer;
   }
+
+  .between {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    span {
+      cursor: pointer;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      &:hover {
+        color: map-get($map: $colors, $key: grey);
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .fileIcon {
+    margin: 0 1rem;
+  }
+
+  .filesBox {
+    font-size: 0.9rem;
+    inline-size: min-content;
+    color: map-get($map: $colors, $key: black);
+    overflow: auto;
+    ul {
+      margin: 0;
+      padding: 0;
+      li {
+        list-style: none;
+      }
+    }
+    width: 100%;
+    height: 15vh;
+    background-color: map-get($map: $colors, $key: white);
+
+    & > div {
+      padding: 0 .5rem;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      height: 1.8rem;
+      border-bottom: 1px solid map-get($map: $colors, $key: light-grey);
+      &:hover {
+        cursor: pointer;
+        transition: all .1s ease;
+        background-color: map-get($map: $colors, $key: light-grey);
+      }
+      & > svg {
+        cursor: pointer;
+        transition: all .1s ease;
+        &:hover {
+          color: map-get($map: $colors, $key: dark-grey);
+        }
+      }
+    }
+
+    .empty {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: map-get($map: $colors, $key: grey);
+      width: 100%;
+      height: 100%;
+      &:hover {
+        cursor: unset;
+        background-color: map-get($map: $colors, $key: white);
+      }
+    }
+  }
+
+  .filesBox2 {
+    height: unset;
+    color: map-get($map: $colors, $key: white);
+    background-color: map-get($map: $colors, $key: black);
+  }
+
+  .dropzone {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 20vh;
+    font-size: 0.8rem;
+    margin-top: 1rem;
+    padding: 1rem 1rem;
+    cursor: pointer;
+    color: map-get($map: $colors, $key: dark-grey);
+    background-color: map-get($map: $colors, $key: light-grey);
+    border: 2px dashed map-get($map: $colors, $key: dark-grey);
+  }
 }
 
 .repoOn {
   right: 0;
-}
-
-.loader,
-.loader:after {
-  border-radius: 50%;
-  width: 10em;
-  height: 10em;
-}
-.loader {
-  margin: 60px auto;
-  font-size: 10px;
-  position: relative;
-  text-indent: -9999em;
-  border-top: 1.1em solid map-get($map: $colors, $key: black-transparent-light);
-  border-right: 1.1em solid
-    map-get($map: $colors, $key: black-transparent-light);
-  border-bottom: 1.1em solid
-    map-get($map: $colors, $key: black-transparent-light);
-  border-left: 1.1em solid map-get($map: $colors, $key: black);
-  -webkit-transform: translateZ(0);
-  -ms-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-animation: load8 1.1s infinite linear;
-  animation: load8 1.1s infinite linear;
-}
-@-webkit-keyframes load8 {
-  0% {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-@keyframes load8 {
-  0% {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
 }

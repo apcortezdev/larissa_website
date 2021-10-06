@@ -2,11 +2,11 @@ import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import styles from './Dialog.module.scss';
 
-const Dialog = ({ show, onOk, onCancel, children }) => {
+const Dialog = ({ className, show, onOk, onCancel, children }) => {
   if (show) {
     return (
       <div className={styles.page}>
-        <div className={styles.dialogBox}>
+        <div className={[className || '', styles.dialogBox].join(' ')}>
           <div className={styles.message}>{children}</div>
           {(onOk || onCancel) && (
             <span>
@@ -40,6 +40,7 @@ Dialog.propTypes = {
   show: PropTypes.bool,
   onOk: PropTypes.func,
   onCancel: PropTypes.func,
+  className: PropTypes.string,
 };
 
 export default Dialog;

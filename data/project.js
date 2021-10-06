@@ -1,7 +1,8 @@
 import dbConnect from '../util/dbConnect';
 import User from '../models/user';
 import Project from '../models/project';
-import { postUser, getUserByEmail, sendEmail } from './user';
+import { postUser, deletetUser, getUserByEmail, sendEmail } from './user';
+import { deleteFiles } from './file';
 import {
   validateIsValidName,
   validateEmail,
@@ -17,7 +18,7 @@ const hasErrors = (project) => {
   let errors = [];
   if (!project.name) {
     errors.push('Nome do Projeto obrigatório');
-  } else if (project.name.length < 5 || !validateIsValidName(project.name)) {
+  } else if (project.name.length < 5) {
     errors.push('Nome do Projeto inválido');
   }
 
@@ -121,7 +122,22 @@ export async function postProject(project) {
       sendEmail('notification', user, passTemp);
     }
 
-    return created;
+    return {
+      _id: created._id,
+      name: created.name,
+      clientFirstName: created.clientFirstName,
+      clientLastName: created.clientLastName,
+      clientEmail: created.clientEmail,
+      clientCpfCnpj: created.clientCpfCnpj,
+      clientPhone: created.clientPhone,
+      address1: created.address1,
+      address2: created.address2,
+      city: created.city,
+      state: created.state,
+      cep: created.cep,
+      createdOn: created.createdOn,
+      files: created.files,
+    };
   } catch (err) {
     throw new Error('ERN0P3: ' + err.message);
   }
@@ -210,4 +226,26 @@ export async function removeFilesFromProject(projId, fileId) {
     }
   }
   return { project: project };
+}
+
+export async function deleteProject(projId, email) {
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0P12: ' + err.message);
+  }
+
+  try {
+    let user;
+    await deleteFiles(projId);
+    const projs = await getProjectsByClientEmail(email);
+    const proj = await Project.findByIdAndDelete(projId);
+    if (projs.projects.length === 1) {
+      // delete client if has only this project
+      user = await deletetUser(projs.client._id.toString());
+    }
+    return { proj, user };
+  } catch (err) {
+    throw new Error('ERN0P13: ' + err.message);
+  }
 }

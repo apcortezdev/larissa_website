@@ -1,30 +1,54 @@
 import Head from 'next/head';
 import { getSession, signOut } from 'next-auth/client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from '../../styles/Acesso.module.scss';
 import Project from '../../components/utils/Project';
 import NewProject from '../../components/utils/NewProject';
 import { getProjects } from '../../data/project';
 import { getUserByEmail } from '../../data/user';
 
-export default function AcessoAdm({ projects }) {
-  const [viewProj, setViewProj] = useState();
+export default function AcessoAdm({ projs }) {
+  const [projects, setProjects] = useState([]);
+
+  useEffect(() => {
+    setProjects(projs);
+  }, []);
+
+  const [viewProj, setViewProj] = useState({});
   const [newProject, setNewProject] = useState(false);
 
-  const openProj = (event, proj) => {
+  const openProj = (event, proj, index) => {
     event.preventDefault();
     setNewProject(false);
-    setViewProj(proj);
+    setViewProj({ index: index, proj });
   };
 
   const closeProj = (event) => {
-    event.preventDefault();
-    setViewProj(null);
+    if (event) event.preventDefault();
+    setViewProj({});
   };
 
   function logout(event) {
     event.preventDefault();
     signOut();
+  }
+
+  function updateProject(index, proj) {
+    if (proj) {
+      setProjects((ps) => {
+        let newPs = [...ps];
+        newPs[index] = proj;
+        return newPs;
+      });
+      setViewProj({ index: index, proj });
+    } else {
+      setProjects((ps) => {
+        let newPs = [...ps];
+        newPs.splice(index, 1);
+        return newPs;
+      });
+      closeProj()
+    }
   }
 
   return (
@@ -59,9 +83,16 @@ export default function AcessoAdm({ projects }) {
               </span>
             </div>
             <ul>
-              {projects.map((proj) => (
-                <li key={proj._id} onClick={(event) => openProj(event, proj)}>
-                  {proj.name}
+              {projects.map((proj, index) => (
+                <li
+                  key={proj._id}
+                  onClick={(event) => openProj(event, proj, index)}
+                >
+                  {viewProj?.proj?._id === proj._id ? (
+                    <b>{proj.name}</b>
+                  ) : (
+                    proj.name
+                  )}
                 </li>
               ))}
             </ul>
@@ -73,10 +104,17 @@ export default function AcessoAdm({ projects }) {
             {newProject ? (
               <NewProject
                 onDismiss={() => setNewProject(false)}
-                onNew={() => {}}
+                onNew={(proj) => {
+                  setProjects((pjs) => [...pjs, proj]);
+                  setViewProj({ index: projects.length + 1, proj });
+                }}
               />
             ) : (
-              <Project project={viewProj} onDismiss={closeProj} />
+              <Project
+                project={viewProj.proj}
+                onDismiss={closeProj}
+                onChange={(prj) => updateProject(viewProj.index, prj)}
+              />
             )}
           </aside>
         </article>
@@ -108,7 +146,7 @@ export async function getServerSideProps(context) {
 
   return {
     props: {
-      projects: JSON.parse(JSON.stringify(projects)),
+      projs: JSON.parse(JSON.stringify(projects)),
       session: session,
     },
   };

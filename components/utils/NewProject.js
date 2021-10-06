@@ -69,7 +69,7 @@ const NewProject = ({ onDismiss, onNew }) => {
     setCepValid(true);
 
     // name
-    if (name.current.value.length < 5 || !validateIsValidName(name.current.value.trim())) {
+    if (name.current.value.length < 5) {
       setNameValidMessage('Obrigatório, mínimo de 5 letras');
       setNameValid(false);
       name.current.focus();

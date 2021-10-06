@@ -13,6 +13,10 @@
 }
 
 .content {
+  & > section {
+    max-width: 50rem;
+  }
+
   padding: 1rem;
   color: map-get($map: $colors, $key: black);
   height: 100%;
@@ -39,7 +43,6 @@
       justify-content: space-between;
       align-items: center;
       padding: 0 1rem;
-      max-width: 50rem;
       cursor: pointer;
       &:hover {
         background-color: map-get($map: $colors, $key: white);
@@ -49,6 +52,84 @@
           color: map-get($map: $colors, $key: dark-grey);
         }
       }
+    }
+  }
+
+  .dropzone {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 20vh;
+    font-size: 0.8rem;
+    margin-top: 1rem;
+    padding: 1rem 1rem;
+    cursor: pointer;
+    color: map-get($map: $colors, $key: dark-grey);
+    background-color: map-get($map: $colors, $key: light-grey);
+    border: 2px dashed map-get($map: $colors, $key: dark-grey);
+  }
+
+  .filesBox {
+    padding-top: 1rem;
+    overflow: auto;
+    ul {
+      margin: 0;
+      padding: 0;
+      li {
+        list-style: none;
+      }
+    }
+    width: 100%;
+  }
+
+  .between {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    span {
+      cursor: pointer;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      &:hover {
+        color: map-get($map: $colors, $key: dark-grey);
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .fileIcon {
+    margin: 0 1rem;
+  }
+
+  .discontinue {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    &:hover {
+      color: map-get($map: $colors, $key: dark-grey);
+      text-decoration: underline;
+    }
+    & > svg {
+      margin: 0 0.5rem;
+    }
+  }
+
+  .attentionIcon {
+    margin: 0 auto 1rem auto;
+    display: block;
+  }
+
+  .dialogLong {
+    height: 25rem;
+    @include media-min-width(25rem) {
+      height: 20rem;
     }
   }
 }

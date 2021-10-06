@@ -49,27 +49,23 @@ const project = new Schema({
   },
   address1: {
     type: String,
-    required: true,
+    required: false,
   },
   address2: {
     type: String,
-    required: true,
+    required: false,
   },
   city: {
     type: String,
-    required: true,
+    required: false,
   },
   state: {
     type: String,
-    required: true,
+    required: false,
   },
   cep: {
     type: String,
-    required: true,
-  },
-  active: {
-    type: Boolean,
-    default: true,
+    required: false,
   },
   createdOn: {
     type: Date,
@@ -79,7 +75,7 @@ const project = new Schema({
 });
 
 project.query.byEmail = function (email) {
-  return this.where({ email: email, active: true });
+  return this.where({ email: email });
 };
 
 export default mongoose.models.Project || mongoose.model('Project', project);

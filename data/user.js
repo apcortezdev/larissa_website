@@ -90,6 +90,21 @@ export async function authenticate(email, password) {
   }
 }
 
+export async function deletetUser(id) {
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0U9: ' + err.message);
+  }
+
+  try {
+    let user = await User.findByIdAndDelete(id);
+    return user;
+  } catch (err) {
+    throw new Error('ERN0U10: ' + err.message);
+  }
+}
+
 export async function sendEmail(type = 'new', user, tempPassword) {
   if (type === 'new') {
     // send email to new user w/ temp password

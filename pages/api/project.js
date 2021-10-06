@@ -1,5 +1,9 @@
 import { getSession } from 'next-auth/client';
-import { postProject, getProjectsByClientEmail } from '../../data/project';
+import {
+  postProject,
+  deleteProject,
+  getProjectsByClientEmail,
+} from '../../data/project';
 import { getUserByEmail } from '../../data/user';
 
 const get = async (req, res) => {
@@ -14,9 +18,9 @@ const get = async (req, res) => {
     res.status(200).json({
       statusCode: '200',
       client: {
-         email: projs.client.email,
-         permission: perm 
-        },
+        email: projs.client.email,
+        permission: perm,
+      },
       projects: projs.projects,
     });
   } catch (err) {
@@ -66,6 +70,34 @@ const post = async (req, res) => {
   }
 };
 
+const del = async (req, res) => {
+  try {
+    const deletedProject = await deleteProject(req.body.projId, req.body.email);
+    res
+      .status(200)
+      .json({
+        statusCode: '200',
+        deleted: {
+          project: !!deletedProject.proj,
+          client: !!deletedProject.user,
+        },
+      });
+  } catch (err) {
+    console.log(err);
+    if (err.message.startsWith('ERN0P1')) {
+      res.status(400).json({
+        statusCode: '400',
+        message: err.message.slice(7),
+      });
+    } else {
+      res.status(500).json({
+        statusCode: '500',
+        message: 'ERROR: ' + err.message,
+      });
+    }
+  }
+};
+
 export default async function handler(req, res) {
   const session = await getSession({ req: req });
 
@@ -74,6 +106,7 @@ export default async function handler(req, res) {
     return;
   }
 
+  let user;
   switch (req.method) {
     case 'GET':
       if (session.user.email !== req.query.email) {
@@ -81,11 +114,17 @@ export default async function handler(req, res) {
       }
       return await get(req, res);
     case 'POST':
-      const user = await getUserByEmail(session.user.email);
+      user = await getUserByEmail(session.user.email);
       if (user.permission !== process.env.PERM_ADM) {
         return res.status(403).json({ message: 'Forbidden.' });
       }
       return await post(req, res);
+    case 'DELETE':
+      user = await getUserByEmail(session.user.email);
+      if (user.permission !== process.env.PERM_ADM) {
+        return res.status(403).json({ message: 'Forbidden.' });
+      }
+      return await del(req, res);
     default:
       res.status(405).json({
         statusCode: '405',

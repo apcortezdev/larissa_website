@@ -10,7 +10,7 @@ import {
   validatePhone,
   validateState,
   validateIsValidName,
-} from '../../util/frontValidation';
+} from '../../validation/frontValidation';
 import Dialog from '../UI/Dialog';
 
 const NewProject = ({ onDismiss, onNew }) => {

@@ -1,8 +1,9 @@
 import dbConnect from '../util/dbConnect';
+import { sendEmail } from '../util/email';
 import User from '../models/user';
 import Project from '../models/project';
-import { postUser, deletetUser, getUserByEmail, sendEmail } from './user';
-import { deleteFiles } from './file';
+import { postUser, deletetUser, getUserByEmail } from './user';
+import { deleteFiles } from '../util/file';
 import {
   validateIsValidName,
   validateEmail,
@@ -11,7 +12,7 @@ import {
   validateState,
   validatePhone,
   generateKey,
-} from '../util/backValidation';
+} from '../validation/backValidation';
 
 const hasErrors = (project) => {
   // name

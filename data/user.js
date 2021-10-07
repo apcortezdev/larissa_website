@@ -1,7 +1,13 @@
 import User from '../models/user';
 import dbConnect from '../util/dbConnect';
+import { sendRecoveryEmail } from '../util/email';
 import { hash, compare } from 'bcryptjs';
-import { validateEmail } from '../util/backValidation';
+import {
+  validateEmail,
+  generateKey,
+  validatePasswordLength,
+  validatePasswordStrength,
+} from '../validation/backValidation';
 
 const hashPassword = async (password) => {
   return await hash(password, 12);
@@ -13,6 +19,11 @@ export async function postUser(email, password) {
     throw new Error('ERN0U1: Email obrigatório');
   } else if (!validateEmail(email)) {
     throw new Error('ERN0U1: Email inválido');
+  } else if (
+    !validatePasswordLength(password) ||
+    !validatePasswordStrength(password)
+  ) {
+    throw new Error('ERN0U1: Senha muito fraca');
   }
 
   try {
@@ -58,11 +69,26 @@ export async function getUserByEmail(email) {
   }
 }
 
-export async function authenticate(email, password) {
+export async function getUserById(_id) {
   try {
     await dbConnect();
   } catch (err) {
     throw new Error('ERN0U7: ' + err.message);
+  }
+
+  try {
+    let user = await User.findById(_id);
+    return user;
+  } catch (err) {
+    throw new Error('ERN0U8: ' + err.message);
+  }
+}
+
+export async function authenticate(email, password) {
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0U9: ' + err.message);
   }
 
   try {
@@ -85,7 +111,7 @@ export async function authenticate(email, password) {
     if (err.message.startsWith('404')) {
       throw new Error('404');
     } else {
-      throw new Error('ERN0U8: ' + err.message);
+      throw new Error('ERN0U10: ' + err.message);
     }
   }
 }
@@ -94,52 +120,129 @@ export async function deletetUser(id) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN0U9: ' + err.message);
+    throw new Error('ERN0U11: ' + err.message);
   }
 
   try {
     let user = await User.findByIdAndDelete(id);
     return user;
   } catch (err) {
-    throw new Error('ERN0U10: ' + err.message);
+    throw new Error('ERN0U12: ' + err.message);
   }
-}
-
-export async function sendEmail(type = 'new', user, tempPassword) {
-  if (type === 'new') {
-    // send email to new user w/ temp password
-  } else {
-    // send notification proj is on
-  }
-  return false;
 }
 
 export async function passwordRecover(email, log) {
   try {
     await dbConnect();
   } catch (err) {
-    throw new Error('ERN0C1: ' + err.message);
+    throw new Error('ERN0U13: ' + err.message);
   }
 
   try {
-    const project = await Project.findOne().byEmail(email);
-    if (!project) {
+    const user = await User.findOne().byEmail(email);
+    if (!user) {
       throw new Error('404');
     }
+    const recoveryToken = await generateKey(128);
     const date = new Date();
-    const requested = await Project.findByIdAndUpdate(project._id, {
-      lastRecoveryString: await generateKey(20),
-      lastRecoveryTime: date,
-      lastRecoveryActive: true,
-      recoveryLogs: project.recoveryLogs.push({ ...log, requestedOn: date }),
-    });
+    const exp = new Date();
+    exp.setTime(date.getTime() + 1 * 60 * 60 * 1000);
+    log = {
+      ...log,
+      recoveryToken: recoveryToken,
+      requestedOn: date,
+      exp: exp,
+    };
+    if (!user.recoveryLogs) user.recoveryLogs = [log];
+    else user.recoveryLogs.push(log);
 
-    return requested.email;
+    await user.save();
+
+    const emailSent = await sendRecoveryEmail(user);
+
+    if (emailSent) return user.email;
+    return null;
   } catch (err) {
     if (err.message.startsWith('404')) {
       throw new Error('404');
     } else {
-      throw new Error('ERN0C10: ' + err.message);
+      throw new Error('ERN0U14: ' + err.message);
     }
+  }
+}
+
+export async function resetPassword(userId, email, recoveryToken, newPassword) {
+  if (!userId || !email || !recoveryToken || !newPassword) {
+    throw new Error('ERN0U15: Informações incompletas');
+  } else if (
+    !validatePasswordLength(newPassword) ||
+    !validatePasswordStrength(newPassword)
+  ) {
+    throw new Error('ERN0U15: Senha muito fraca');
+  }
+
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0U16: ' + err.message);
+  }
+
+  try {
+    const date = new Date();
+    const user = await User.findById(userId);
+
+    if (!user) throw new Error('ERN0U17');
+    if (!user.recoveryLogs || user.recoveryLogs.length === 0)
+      throw new Error('ERN0U17');
+
+    const recovery = user.recoveryLogs[user.recoveryLogs.length - 1];
+
+    if (
+      user.email !== email ||
+      recovery.recoveryToken !== recoveryToken ||
+      !!recovery.recoveredOn
+    )
+      throw new Error('ERN0U17');
+
+    if (recovery.exp.getTime() < date.getTime()) {
+      throw new Error('ERN0U18');
+    }
+
+    user.hashPassword = await hashPassword(newPassword);
+    user.recoveryLogs[user.recoveryLogs.length - 1].recoveredOn = date;
+
+    const recovered = await user.save();
+
+    return recovered.email;
+  } catch (err) {
+    if (err.message === 'ERN0U17' || err.message === 'ERN0U18') {
+      throw new Error(err.message);
+    } else {
+      throw new Error('ERN0U19: ' + err.message);
+    }
+  }
+}
+
+export async function setAccess(email) {
+  if (!email) {
+    throw new Error('ERN0U20: Email obrigatório');
+  } else if (!validateEmail(email)) {
+    throw new Error('ERN0U20: Email inválido');
+  }
+
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0U21: ' + err.message);
+  }
+
+  try {
+    let user = await User.findOne().byEmail(email);
+    if (!user) throw new Error('404');
+    user.lastAccess = new Date();
+    await user.save();
+    return user.email;
+  } catch (err) {
+    throw new Error('ERN0U22: ' + err.message);
   }
 }

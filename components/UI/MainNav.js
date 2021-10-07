@@ -9,7 +9,7 @@ import styles from './MainNav.module.scss';
 import Button from '../utils/Button';
 import Dialog from '../UI/Dialog';
 import { useClickOutside } from '../../hooks/useClickOutside';
-import { validateEmail } from '../../util/frontValidation';
+import { validateEmail } from '../../validation/frontValidation';
 import { useRouter } from 'next/router';
 import Loading from './Loading';
 
@@ -273,9 +273,19 @@ export default function MainNav() {
   }
 
   async function recover() {
+    setEmailValid(true);
+    if (!validateEmail(email)) {
+      setEmailValid(false);
+      setMessage('Por favor, preencha o campo email corretamente.');
+      setOnOk(() => () => setShowDialog(false));
+      setOnCancel(null);
+      setShowDialog(true);
+      return;
+    }
+    setLoading(true);
     setOnOk(null);
     setOnCancel(null);
-    setMessage(null);
+    setMessage('Por favor, aguarde....');
     const local = await fetch('https://geolocation-db.com/json/');
     const location = await local.json();
     const response = await fetch('/api/recover', {
@@ -291,7 +301,7 @@ export default function MainNav() {
         break;
       case 404:
         setMessage(
-          'Este email não está cadastrado. Por favor, tente outro endereço ou entre em contato conosco.'
+          'Este email não está cadastrado. Por favor, tente outro endereço ou entre em contato conosco pelo telefone.'
         );
         break;
       default:
@@ -301,6 +311,7 @@ export default function MainNav() {
         break;
     }
     setOnOk(() => () => setShowDialog(false));
+    setLoading(false);
   }
 
   return (

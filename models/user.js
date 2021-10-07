@@ -35,11 +35,19 @@ const recoveryLogSchema = new Schema({
     type: String,
     required: true,
   },
+  recoveryToken: {
+    type: String,
+    required: true,
+  },
   requestedOn: {
     type: Date,
     required: true,
   },
   recoveredOn: {
+    type: Date,
+    required: false,
+  },
+  exp: {
     type: Date,
     required: false,
   },
@@ -58,23 +66,7 @@ const user = new Schema({
     type: String,
     required: true,
   },
-  active: {
-    type: Boolean,
-    default: true,
-  },
   lastAccess: {
-    type: Date,
-    required: false,
-  },
-  lastRecoveryString: {
-    type: String,
-    required: false,
-  },
-  lastRecoveryTime: {
-    type: Date,
-    required: false,
-  },
-  lastRecoveryActive: {
     type: Date,
     required: false,
   },

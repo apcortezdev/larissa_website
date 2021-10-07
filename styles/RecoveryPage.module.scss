@@ -1,0 +1,76 @@
+@import '../styles/_colors.scss';
+@import '../styles/_mixin.scss';
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: map-get($map: $colors, $key: white);
+}
+
+.main {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 70rem;
+  margin-top: 4rem;
+  min-height: calc(100vh - 14rem);
+  margin-right: auto;
+  margin-left: auto;
+  margin-bottom: 5rem;
+
+  > form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding: 0 0.5rem;
+    max-width: 20rem;
+    
+    .error {
+      text-align: end;
+      margin-top: 0;
+      margin-left: 0;
+      margin-right: 0;
+      color: map-get($map: $colors, $key: red);
+      margin-bottom: 1rem;
+    }
+
+    .invalid {
+      border: 1px solid map-get($map: $colors, $key: red);
+    }
+
+    > textarea,
+    > input {
+      padding: 1rem;
+      width: 100%;
+      min-width: 10rem;
+      font-family: inherit;
+      font-size: inherit;
+      border: 1px solid map-get($map: $colors, $key: grey);
+      outline: none;
+      margin-bottom: 1rem;
+
+      :focus {
+        outline: none;
+      }
+    }
+
+    > textarea {
+      height: 10rem;
+    }
+
+    .button {
+      width: 8rem;
+    }
+  }
+}

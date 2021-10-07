@@ -35,14 +35,6 @@ const validateEmail = (email) => {
   return re.test(String(email).toLowerCase());
 };
 
-const validatePasswordSize = (pass) => {
-  if (!pass) return false;
-  if (pass.toString().length < 6 || pass.toString().length > 24) {
-    return false;
-  }
-  return true;
-};
-
 const validatePasswordLength = (pass) => {
   if (!pass) return false;
   if (pass.toString().length < 6 || pass.toString().length > 24) {
@@ -54,6 +46,8 @@ const validatePasswordLength = (pass) => {
 const validatePasswordStrength = (pass) => {
   if (!pass) return false;
   if (!/[^a-z]/gi.test(pass)) return false;
+  if (!/[^0-9]/gi.test(pass)) return false;
+
   return true;
 };
 
@@ -164,7 +158,6 @@ const generateKey = async (length) => {
 
 export {
   validateEmail,
-  validatePasswordSize,
   validateCPF,
   validateCNPJ,
   validatePasswordLength,

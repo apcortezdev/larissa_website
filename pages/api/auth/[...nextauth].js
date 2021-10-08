@@ -21,17 +21,40 @@ export default NextAuth({
 
         const isValid = await compare(credentials.password, user.hashPassword);
         if (!isValid) {
-          throw new Error('Incorrect Password');
+          throw new Error('Incorrect password');
         }
 
-        const access = await setAccess(credentials.email);
-
-        if (access === credentials.email)
-          return {
-            email: user.email,
-          };
-        throw new Error('Internal Error');
+        return {
+          email: user.email,
+        };
       },
     }),
   ],
+  callbacks: {
+    async jwt(token) {
+      const user = await setAccess(token.email);
+      token.active = user.active;
+      token.perms = user.permission;
+      return token;
+    },
+    async session(session, token) {
+      let firstAccess;
+      let perms;
+
+      if (token) {
+        firstAccess = !token.active;
+        perms = token.perms;
+      } else {
+        const user = await getUserByEmail(session.user.email);
+        firstAccess = !user.active;
+        perms = user.perms;
+      }
+
+      session.user.firstAccess = firstAccess;
+
+      if (perms === process.env.PERM_ADM) session.user.perms = 'adm';
+      else session.user.perms = 'cli';
+      return session;
+    },
+  },
 });

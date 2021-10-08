@@ -147,14 +147,12 @@ export async function getServerSideProps(context) {
   try {
     user = await getUserById(context.params.recoveryInfo[0]);
   } catch (err) {
-    console.log('HERE1');
     return {
       notFound: true,
     };
   }
 
   if (!user) {
-    console.log('HERE2');
     return {
       notFound: true,
     };

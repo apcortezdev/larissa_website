@@ -128,32 +128,6 @@
     }
   }
 
-  & > form {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-
-    > input {
-      padding: 1rem;
-      width: 100%;
-      min-width: 10rem;
-      font-family: inherit;
-      font-size: inherit;
-      border: 1px solid map-get($map: $colors, $key: grey);
-      outline: none;
-      margin-bottom: 1rem;
-
-      :focus {
-        outline: none;
-      }
-    }
-
-    .invalid {
-      background-color: map-get($map: $colors, $key: red-light);
-    }
-  }
-
   .enter {
     align-self: flex-end;
     width: 10rem;
@@ -170,6 +144,59 @@
     background-color: map-get($map: $colors, $key: black);
     color: map-get($map: $colors, $key: white);
     border: 1px solid map-get($map: $colors, $key: white);
+  }
+}
+
+.firstAccess {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 2rem;
+  text-align: end;
+
+  & > p {
+    margin-top: 0.2rem;
+    line-height: 1.7rem;
+  }
+}
+
+.logForm {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  > input {
+    padding: 1rem;
+    width: 100%;
+    min-width: 10rem;
+    font-family: inherit;
+    font-size: inherit;
+    border: 1px solid map-get($map: $colors, $key: grey);
+    outline: none;
+    margin-bottom: 1rem;
+
+    :focus {
+      outline: none;
+    }
+
+    :disabled {
+      background-color: map-get($map: $colors, $key: light-grey);
+    }
+  }
+
+  > input:disabled {
+    color: map-get($map: $colors, $key: black);
+    background-color: map-get($map: $colors, $key: white);
+  }
+
+  .invalid {
+    background-color: map-get($map: $colors, $key: red-light);
+  }
+
+  .error {
+    margin: 0;
+    color: map-get($map: $colors, $key: red);
   }
 }
 
@@ -262,7 +289,7 @@
     background-color: map-get($map: $colors, $key: white);
 
     & > div {
-      padding: 0 .5rem;
+      padding: 0 0.5rem;
       display: flex;
       flex-direction: row;
       justify-content: space-between;
@@ -272,12 +299,12 @@
       border-bottom: 1px solid map-get($map: $colors, $key: light-grey);
       &:hover {
         cursor: pointer;
-        transition: all .1s ease;
+        transition: all 0.1s ease;
         background-color: map-get($map: $colors, $key: light-grey);
       }
       & > svg {
         cursor: pointer;
-        transition: all .1s ease;
+        transition: all 0.1s ease;
         &:hover {
           color: map-get($map: $colors, $key: dark-grey);
         }

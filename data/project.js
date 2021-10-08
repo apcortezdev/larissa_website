@@ -1,5 +1,5 @@
 import dbConnect from '../util/dbConnect';
-import { sendEmail } from '../util/email';
+import { sendNewUserEmail } from '../util/email';
 import User from '../models/user';
 import Project from '../models/project';
 import { postUser, deletetUser, getUserByEmail } from './user';
@@ -118,9 +118,9 @@ export async function postProject(project) {
     const created = await newProject.save();
 
     if (passTemp) {
-      sendEmail('new', user, passTemp);
+      sendNewUserEmail();
     } else {
-      sendEmail('notification', user, passTemp);
+      sendProjectNotificationEmail();
     }
 
     return {
@@ -176,14 +176,13 @@ export async function getProjectsByClientEmail(email) {
   }
 
   try {
-    user = await User.findOne().byEmail(email).select('_id email permission');
     projects = await Project.find().byEmail(email).select('_id name files');
   } catch (err) {
     if (err) {
       throw new Error('ERN0P7');
     }
   }
-  return { client: user, projects };
+  return projects;
 }
 
 export async function addFilesToProject(_id, files) {

@@ -223,11 +223,14 @@ export async function resetPassword(userId, email, recoveryToken, newPassword) {
   }
 }
 
-export async function setAccess(email) {
-  if (!email) {
-    throw new Error('ERN0U20: Email obrigatório');
-  } else if (!validateEmail(email)) {
-    throw new Error('ERN0U20: Email inválido');
+export async function setNewPasswordFirstAccess(email, newPassword) {
+  if (!email || !newPassword) {
+    throw new Error('ERN0U20: Informações incompletas');
+  } else if (
+    !validatePasswordLength(newPassword) ||
+    !validatePasswordStrength(newPassword)
+  ) {
+    throw new Error('ERN0U20: Senha muito fraca');
   }
 
   try {
@@ -237,12 +240,44 @@ export async function setAccess(email) {
   }
 
   try {
+    const user = await User.findOne().byEmail(email);
+    if (!user) throw new Error('ERN0U22');
+    if (user.active) throw new Error('ERN0U23');
+
+    user.hashPassword = await hashPassword(newPassword);
+    user.active = true;
+
+    const saved = await user.save();
+
+    return saved.email;
+  } catch (err) {
+    if (err.message === 'ERN0U24') {
+      throw new Error(err.message);
+    } else {
+      throw new Error('ERN0U25: ' + err.message);
+    }
+  }
+}
+
+export async function setAccess(email) {
+  if (!email) {
+    throw new Error('ERN0U26: Email obrigatório');
+  } else if (!validateEmail(email)) {
+    throw new Error('ERN0U26: Email inválido');
+  }
+
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0U27: ' + err.message);
+  }
+
+  try {
     let user = await User.findOne().byEmail(email);
     if (!user) throw new Error('404');
     user.lastAccess = new Date();
-    await user.save();
-    return user.email;
+    return user;
   } catch (err) {
-    throw new Error('ERN0U22: ' + err.message);
+    throw new Error('ERN0U28: ' + err.message);
   }
 }

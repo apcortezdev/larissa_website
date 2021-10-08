@@ -58,6 +58,10 @@ const user = new Schema({
     type: String,
     required: true,
   },
+  active: {
+    type: Boolean,
+    default: false,
+  },
   permission: {
     type: String,
     required: true,
@@ -74,7 +78,7 @@ const user = new Schema({
 });
 
 user.query.byEmail = function (email) {
-  return this.where({ email: email, active: true });
+  return this.where({ email: email });
 };
 
 export default mongoose.models.User || mongoose.model('User', user);

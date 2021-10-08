@@ -146,11 +146,11 @@ const validateState = (state) => {
 };
 
 const generateKey = async (length) => {
-  var result = '';
+  var result = '2';
   var characters =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   var charactersLength = characters.length;
-  for (var i = 0; i < length; i++) {
+  for (var i = 0; i < length - 1; i++) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;

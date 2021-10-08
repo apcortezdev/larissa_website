@@ -9,19 +9,9 @@ import { getUserByEmail } from '../../data/user';
 const get = async (req, res) => {
   try {
     const projs = await getProjectsByClientEmail(req.query.email);
-    let perm;
-    if (projs.client.permission === process.env.PERM_ADM) {
-      perm = 'adm';
-    } else {
-      perm = 'cli';
-    }
     res.status(200).json({
       statusCode: '200',
-      client: {
-        email: projs.client.email,
-        permission: perm,
-      },
-      projects: projs.projects,
+      projects: projs,
     });
   } catch (err) {
     if (err.message === '404') {
@@ -55,7 +45,6 @@ const post = async (req, res) => {
     });
     res.status(201).json({ statusCode: '201', project: newProject });
   } catch (err) {
-    console.log(err);
     if (err.message.startsWith('ERN0P1')) {
       res.status(400).json({
         statusCode: '400',
@@ -83,7 +72,6 @@ const del = async (req, res) => {
         },
       });
   } catch (err) {
-    console.log(err);
     if (err.message.startsWith('ERN0P1')) {
       res.status(400).json({
         statusCode: '400',

@@ -75,7 +75,7 @@ const project = new Schema({
 });
 
 project.query.byEmail = function (email) {
-  return this.where({ email: email });
+  return this.where({ clientEmail: email });
 };
 
 export default mongoose.models.Project || mongoose.model('Project', project);

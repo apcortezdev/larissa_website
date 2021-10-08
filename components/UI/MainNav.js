@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import Link from 'next/link';
 import { signin, signOut } from 'next-auth/client';
-import { useSession } from 'next-auth/client';
+import { useSession, getSession } from 'next-auth/client';
 import { useDropzone } from 'react-dropzone';
 import Backdrop from './Backdrop';
 import { useEffect, useRef, useState } from 'react';
@@ -9,7 +9,11 @@ import styles from './MainNav.module.scss';
 import Button from '../utils/Button';
 import Dialog from '../UI/Dialog';
 import { useClickOutside } from '../../hooks/useClickOutside';
-import { validateEmail } from '../../validation/frontValidation';
+import {
+  validateEmail,
+  validatePasswordLength,
+  validatePasswordStrength,
+} from '../../validation/frontValidation';
 import { useRouter } from 'next/router';
 import Loading from './Loading';
 
@@ -35,12 +39,10 @@ const loginIco = (
 export default function MainNav() {
   const router = useRouter();
   const [session] = useSession();
-  const [client, setClient] = useState({});
   const [projects, setProjects] = useState([]);
   const [activeProj, setActiveProj] = useState({});
   const [loading, setLoading] = useState(false);
   const [openRepo, setOpenRepo] = useState(false);
-  const [checkLogin, setCheckLogin] = useState(false);
 
   // web menus
   const menuItemOne = useRef();
@@ -59,7 +61,9 @@ export default function MainNav() {
   const [email, setEmail] = useState('');
   const [emailValid, setEmailValid] = useState(true);
   const [password, setPassword] = useState('');
+  const [passwordConf, setPasswordConf] = useState('');
   const [passwordValid, setPasswordValid] = useState(true);
+  const [logErrorMessage, setLogErrorMessage] = useState('');
   useClickOutside(logBox, () => setLogToggle(false));
 
   // dialog
@@ -98,28 +102,70 @@ export default function MainNav() {
       valid = false;
     }
 
+    if (session) {
+      if (session.user.firstAccess) {
+        if (!validatePasswordLength(password)) {
+          setPasswordValid(false);
+          setLogErrorMessage('a senha tem q ter pelo menos 6 caracteres');
+          return false;
+        }
+        if (!validatePasswordStrength(password)) {
+          setPasswordValid(false);
+          setLogErrorMessage('a senha tem q ter letras e números');
+          return false;
+        }
+        if (password !== passwordConf) {
+          setPasswordValid(false);
+          setLogErrorMessage('as senhas precisam ser iguais');
+          return false;
+        }
+      }
+    }
+
     return valid;
   };
 
   async function login(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
     setLoading(true);
+    setOnOk(() => () => setShowDialog(false));
     if (validate()) {
-      const response = await signin('credentials', {
-        redirect: false,
-        email: email,
-        password: password,
-      });
+      let response;
+      if (session && session.user.firstAccess) {
+        response = await fetch('/api/auth/first_access/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: session.user.email,
+            newPassword: password,
+          }),
+        });
+      } else {
+        response = await signin('credentials', {
+          redirect: false,
+          email: email,
+          password: password,
+        });
+      }
       switch (response.status) {
         case 200:
           if (response.error) {
-            setMessage(
-              'Ops, algo deu errado. Por favor, tente daqui a pouquinho!'
-            );
-            setShowDialog(true);
-          } else {
-            setCheckLogin(true);
+            if (
+              response.error === 'Not found' ||
+              response.error === 'Incorrect password'
+            ) {
+              setMessage('Endereço de email ou senha incorretos.');
+              setShowDialog(true);
+            } else {
+              setMessage(
+                'Ops, algo deu errado. Por favor, tente daqui a pouquinho!'
+              );
+              setShowDialog(true);
+            }
           }
+          break;
+        case 201:
+          session.user.firstAccess = false;
           break;
         default:
           setMessage(
@@ -133,21 +179,32 @@ export default function MainNav() {
   }
 
   async function logout(event) {
-    event.preventDefault();
+    if (event) event.preventDefault();
     signOut();
   }
 
-  const openDrawer = async (perm) => {
+  const openDrawer = async () => {
     setLoading(true);
     if (session) {
-      let p = perm || client.permission;
-      if (!p) {
-        let cli = await getUserProject();
-        p = cli.permission;
-      }
-      if (p === 'adm') {
+      if (session.user.perms === 'adm') {
         router.push({ pathname: '/acesso' });
-      } else if (p === 'cli') {
+      } else {
+        if (projects.length === 0) {
+          const projs = await getUserProjects();
+          if (!projs) {
+            setMessage(
+              'Opa, estamos com um probleminha. Por favor, tente mais tarde.'
+            );
+            setOnCancel(null);
+            setOnOk(() => () => logout());
+            setShowDialog(true);
+            setLoading(false);
+            return;
+          }
+        }
+        setEmail(session.user.email);
+        setPassword('');
+        setPasswordConf('');
         setOpenRepo((v) => !v);
       }
     } else {
@@ -162,22 +219,22 @@ export default function MainNav() {
     setActiveProj(project);
   };
 
-  const getUserProject = async () => {
+  const getUserProjects = async () => {
+    if (!session.user.email) return false;
     const res = await fetch(`/api/project?email=${session.user.email}`);
     const data = await res.json();
-    setClient(data.client);
-    setProjects(data.projects);
-    setActiveProj(data.projects[0]);
-    return data.client;
+    if (data.projects) {
+      setProjects(data.projects);
+      setActiveProj(data.projects[0]);
+      return true;
+    }
+    return false;
   };
 
   useEffect(() => {
-    if (checkLogin && session) {
-      setCheckLogin(false);
-      getUserProject().then((client) => {
-        setLogToggle(false);
-        openDrawer(client.permission);
-      });
+    if (projects.length === 0 && session && logToggle) {
+      setLogToggle(false);
+      openDrawer();
     }
   });
 
@@ -206,7 +263,7 @@ export default function MainNav() {
 
     formData.append(
       'project',
-      JSON.stringify({ projId: activeProj._id, cliEmail: client.email })
+      JSON.stringify({ projId: activeProj._id, cliEmail: session.user.email })
     );
     files.forEach((file) => {
       formData.append(file.name, file);
@@ -240,7 +297,7 @@ export default function MainNav() {
       'project',
       JSON.stringify({
         projId: activeProj._id,
-        cliEmail: client.email,
+        cliEmail: session.user.email,
         file: { _id: fileId, name },
       })
     );
@@ -401,7 +458,7 @@ export default function MainNav() {
         {mobileToggle && <Backdrop onDismiss={mobilenav_toggle} />}
         {logToggle && (
           <div className={styles.logBox} ref={logBox}>
-            <form onSubmit={login}>
+            <form className={styles.logForm} onSubmit={login}>
               <input
                 type="email"
                 id="email"
@@ -450,107 +507,164 @@ export default function MainNav() {
           >
             <path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z" />
           </svg>
-          {openRepo && (
+          {openRepo && session && (
             <>
-              <div className={styles.projectTabs}>
-                {projects.map((project, index) => (
-                  <div
-                    key={project._id}
-                    onClick={() => setActiveProject(project)}
-                    className={
-                      project._id === activeProj?._id ? styles.activeTab : ''
-                    }
-                  >
-                    {index + 1}
+              {session.user.firstAccess ? (
+                <div className={styles.firstAccess}>
+                  <p>Olá! Muito obrigada por acessar minha plataforma!</p>
+                  <p>
+                    Como este é seu primeiro acesso, por favor, crie uma senha
+                    para seu login
+                  </p>
+                  <p>{'=)'}</p>
+                  <form className={styles.logForm} onSubmit={login}>
+                    <input
+                      type="email"
+                      id="email"
+                      placeholder="email"
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={emailValid ? '' : styles.invalid}
+                      value={email}
+                      disabled
+                    />
+                    <input
+                      type="password"
+                      id="password"
+                      placeholder="nova senha"
+                      onChange={(e) => setPassword(e.target.value)}
+                      value={password}
+                      className={passwordValid ? '' : styles.invalid}
+                    />
+                    <input
+                      type="password"
+                      id="passwordConf"
+                      placeholder="confirmar senha"
+                      onChange={(e) => setPasswordConf(e.target.value)}
+                      className={passwordValid ? '' : styles.invalid}
+                      value={passwordConf}
+                    />
+                    <p className={styles.error}>{logErrorMessage}</p>
+                    {loading ? (
+                      <div className={styles.btnStatic}>Carregando...</div>
+                    ) : (
+                      <Button
+                        style="primary"
+                        icon={loginIco}
+                        className={styles.enter}
+                      >
+                        Entrar
+                      </Button>
+                    )}
+                  </form>
+                </div>
+              ) : (
+                <div>
+                  <div className={styles.projectTabs}>
+                    {projects.map((project, index) => (
+                      <div
+                        key={project._id}
+                        onClick={() => setActiveProject(project)}
+                        className={
+                          project._id === activeProj?._id
+                            ? styles.activeTab
+                            : ''
+                        }
+                      >
+                        {index + 1}
+                      </div>
+                    ))}
+                    <div key="space"></div>
                   </div>
-                ))}
-                <div key="space"></div>
-              </div>
-              <form>
-                <p>Projeto: {activeProj?.name}</p>
-                <p>arquivos:</p>
-                <div className={styles.filesBox}>
-                  {activeProj?.files.length > 0 ? (
-                    activeProj?.files.map((file) => (
-                      <div key={file.name}>
-                        <Link href={file.uri}>
-                          <a rel="noreferrer noopener" target={'_blank'}>
-                            {file.name}
-                          </a>
-                        </Link>
+                  <form>
+                    <p>Projeto: {activeProj?.name}</p>
+                    <p>arquivos:</p>
+                    <div className={styles.filesBox}>
+                      {activeProj?.files.length > 0 ? (
+                        activeProj?.files.map((file) => (
+                          <div key={file.name}>
+                            <Link href={file.uri}>
+                              <a rel="noreferrer noopener" target={'_blank'}>
+                                {file.name}
+                              </a>
+                            </Link>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              fill="currentColor"
+                              viewBox="0 0 16 16"
+                              onClick={() => deleteFile(file._id, file.name)}
+                            >
+                              <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
+                            </svg>
+                          </div>
+                        ))
+                      ) : (
+                        <div className={styles.empty}>Vazio</div>
+                      )}
+                    </div>
+                    <p>adicionar arquivos:</p>
+                    <div {...getRootProps({ className: styles.dropzone })}>
+                      <input {...getInputProps()} multiple />
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="currentColor"
+                        viewBox="0 0 16 16"
+                      >
+                        <path d="M8.5 11.5a.5.5 0 0 1-1 0V7.707L6.354 8.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 7.707V11.5z" />
+                        <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z" />
+                      </svg>
+                      {isDragActive ? (
+                        <p>Solte os arquivos aqui ...</p>
+                      ) : (
+                        <p>
+                          Arraste os arquivos para cá, ou clique para
+                          selecioná-los
+                        </p>
+                      )}
+                    </div>
+                    <div
+                      className={[styles.filesBox, styles.filesBox2].join(' ')}
+                    >
+                      <ul>
+                        {files?.map((file) => (
+                          <li key={file.name}>{file.name}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <span className={styles.between}>
+                      <span onClick={cancelFiles}>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
+                          width="24"
+                          height="24"
                           fill="currentColor"
+                          className={styles.fileIcon}
                           viewBox="0 0 16 16"
-                          onClick={() => deleteFile(file._id, file.name)}
                         >
-                          <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
+                          <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zM6.854 7.146 8 8.293l1.146-1.147a.5.5 0 1 1 .708.708L8.707 9l1.147 1.146a.5.5 0 0 1-.708.708L8 9.707l-1.146 1.147a.5.5 0 0 1-.708-.708L7.293 9 6.146 7.854a.5.5 0 1 1 .708-.708z" />
                         </svg>
-                      </div>
-                    ))
-                  ) : (
-                    <div className={styles.empty}>Vazio</div>
-                  )}
+                        Cancelar
+                      </span>
+                      <span onClick={sendFiles}>
+                        Enviar
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="currentColor"
+                          className={styles.fileIcon}
+                          viewBox="0 0 16 16"
+                        >
+                          <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zM6.354 9.854a.5.5 0 0 1-.708-.708l2-2a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 8.707V12.5a.5.5 0 0 1-1 0V8.707L6.354 9.854z" />
+                        </svg>
+                      </span>
+                    </span>
+                  </form>
                 </div>
-                <p>adicionar arquivos:</p>
-                <div {...getRootProps({ className: styles.dropzone })}>
-                  <input {...getInputProps()} multiple />
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="currentColor"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M8.5 11.5a.5.5 0 0 1-1 0V7.707L6.354 8.854a.5.5 0 1 1-.708-.708l2-2a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 7.707V11.5z" />
-                    <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z" />
-                  </svg>
-                  {isDragActive ? (
-                    <p>Solte os arquivos aqui ...</p>
-                  ) : (
-                    <p>
-                      Arraste os arquivos para cá, ou clique para selecioná-los
-                    </p>
-                  )}
-                </div>
-                <div className={[styles.filesBox, styles.filesBox2].join(' ')}>
-                  <ul>
-                    {files?.map((file) => (
-                      <li key={file.name}>{file.name}</li>
-                    ))}
-                  </ul>
-                </div>
-                <span className={styles.between}>
-                  <span onClick={cancelFiles}>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      className={styles.fileIcon}
-                      viewBox="0 0 16 16"
-                    >
-                      <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zM6.854 7.146 8 8.293l1.146-1.147a.5.5 0 1 1 .708.708L8.707 9l1.147 1.146a.5.5 0 0 1-.708.708L8 9.707l-1.146 1.147a.5.5 0 0 1-.708-.708L7.293 9 6.146 7.854a.5.5 0 1 1 .708-.708z" />
-                    </svg>
-                    Cancelar
-                  </span>
-                  <span onClick={sendFiles}>
-                    Enviar
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      className={styles.fileIcon}
-                      viewBox="0 0 16 16"
-                    >
-                      <path d="M9.293 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V4.707A1 1 0 0 0 13.707 4L10 .293A1 1 0 0 0 9.293 0zM9.5 3.5v-2l3 3h-2a1 1 0 0 1-1-1zM6.354 9.854a.5.5 0 0 1-.708-.708l2-2a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 8.707V12.5a.5.5 0 0 1-1 0V8.707L6.354 9.854z" />
-                    </svg>
-                  </span>
-                </span>
-              </form>
+              )}
             </>
           )}
           <p className={styles.logout} onClick={logout}>

@@ -29,9 +29,12 @@ const saveFile = async (projId, file) => {
 };
 
 const post = async (req, res, session) => {
+  const dir = path.join(process.cwd(), 'public', 'tempFiles');
   const form = new formidable.IncomingForm({
     multiples: true,
     keepExtensions: true,
+    maxFileSize: 1 * 1024 * 1024,
+    uploadDir: dir
   });
   form.parse(req, async (err, fields, files) => {
     if (err) {
@@ -54,6 +57,7 @@ const post = async (req, res, session) => {
     }
 
     try {
+      console.log(files)
       let fileList = [];
       for (const key in files) {
         if (Object.hasOwnProperty.call(files, key)) {

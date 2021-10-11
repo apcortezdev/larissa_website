@@ -7,13 +7,21 @@ const fileSchema = new Schema({
     type: String,
     required: true,
   },
-  uri: {
+  size: {
+    type: Number,
+    required: true,
+  },
+  key: {
+    type: String,
+    required: true,
+  },
+  url: {
     type: String,
     required: true,
   },
   createdOn: {
     type: Date,
-    default: new Date(),
+    default: Date.now,
   },
 });
 

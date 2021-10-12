@@ -269,7 +269,7 @@ export default function MainNav() {
       formData.append(file.name, file);
     });
 
-    const data = await fetch('/api/files', {
+    const data = await fetch('/api/files/setFile', {
       method: method,
       body: formData,
     });
@@ -302,7 +302,7 @@ export default function MainNav() {
       })
     );
 
-    const data = await fetch('/api/files', {
+    const data = await fetch('/api/files/setFile', {
       method: method,
       body: formData,
     });

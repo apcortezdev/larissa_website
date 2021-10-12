@@ -1,9 +1,9 @@
+import fs from 'fs';
+import path from 'path';
 import dbConnect from '../util/dbConnect';
 import { sendNewUserEmail } from '../util/email';
-import User from '../models/user';
 import Project from '../models/project';
 import { postUser, deletetUser, getUserByEmail } from './user';
-import { deleteFiles } from '../util/file';
 import {
   validateIsValidName,
   validateEmail,
@@ -78,6 +78,14 @@ const hasErrors = (project) => {
   }
 
   return errors;
+};
+
+const deleteFile = async (fileKey) => {
+  const file = path.join(process.cwd(), 'public', 'tempFiles', fileKey);
+  if (fs.existsSync(file)) {
+    fs.rmSync(file);
+  }
+  return path.join(file);
 };
 
 export async function postProject(project) {
@@ -194,12 +202,12 @@ export async function addFileToProject(_id, file) {
 
   try {
     let project = await Project.findById(_id);
+
     if (project.files) {
-      project.files = project.files.push(file);
+      project.files = [...project.files, file];
     } else {
       project.files = [file];
     }
-    console.log(project)
 
     return await project.save();
   } catch (err) {
@@ -246,11 +254,15 @@ export async function deleteProject(projId, email) {
 
   try {
     let user;
-    await deleteFiles(projId);
+    if (process.env.STORAGE_TYPE === 'local') {
+      let project = await Project.findById(projId);
+      project.files.forEach(file => {
+        deleteFile(file.key);
+      });
+    }
     const projs = await getProjectsByClientEmail(email);
     const proj = await Project.findByIdAndDelete(projId);
     if (projs.projects.length === 1) {
-      // delete client if has only this project
       user = await deletetUser(projs.client._id.toString());
     }
     return { proj, user };

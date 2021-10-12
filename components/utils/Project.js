@@ -56,7 +56,7 @@ const Project = ({ project, onChange }) => {
       formData.append('file', file);
     });
 
-    const data = await fetch('/api/files', {
+    const data = await fetch('/api/files/setFile', {
       method: method,
       body: formData,
     });
@@ -166,6 +166,13 @@ const Project = ({ project, onChange }) => {
     setLoading(false);
   };
 
+  const getFile = async (event, key) => {
+    if (event) event.preventDefault();
+    const data = await fetch(`/api/files/${key}`);
+    const result = await data.json();
+    window.open(result.url);
+  };
+
   if (project) {
     return (
       <div className={styles.content}>
@@ -220,7 +227,7 @@ const Project = ({ project, onChange }) => {
           <p>Arquivos</p>
           {project.files?.map((file) => (
             <div key={file._id}>
-              {file.name}
+              <p onClick={(e) => getFile(e, file.key)}>{file.name}</p>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"

@@ -185,7 +185,7 @@ export async function getProjectsByClientEmail(email) {
   return projects;
 }
 
-export async function addFilesToProject(_id, files) {
+export async function addFileToProject(_id, file) {
   try {
     await dbConnect();
   } catch (err) {
@@ -194,17 +194,21 @@ export async function addFilesToProject(_id, files) {
 
   try {
     let project = await Project.findById(_id);
-    project.files = project.files.concat(files);
+    if (project.files) {
+      project.files = project.files.push(file);
+    } else {
+      project.files = [file];
+    }
+    console.log(project)
+
     return await project.save();
   } catch (err) {
-    if (err) {
-      throw new Error('ERN0P9');
-    }
+    console.log(err);
+    throw new Error('ERN0P9');
   }
-  return { project: project };
 }
 
-export async function removeFilesFromProject(projId, fileId) {
+export async function removeFileFromProject(projId, fileId) {
   try {
     await dbConnect();
   } catch (err) {
@@ -212,20 +216,25 @@ export async function removeFilesFromProject(projId, fileId) {
   }
 
   try {
+    let returnFile = null;
     let project = await Project.findById(projId);
     let newFiles = [];
     for (let i = 0; i < project.files.length; i++) {
       const file = project.files[i];
-      if (file._id.toString() !== fileId) newFiles.push(file);
+      if (file._id.toString() !== fileId) {
+        newFiles.push(file);
+      } else {
+        returnFile = file;
+      }
     }
     project.files = newFiles;
-    return await project.save();
+    await project.save();
+    return returnFile;
   } catch (err) {
     if (err) {
       throw new Error('ERN0P11');
     }
   }
-  return { project: project };
 }
 
 export async function deleteProject(projId, email) {

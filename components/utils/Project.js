@@ -49,12 +49,11 @@ const Project = ({ project, onChange }) => {
     const formData = new FormData();
     let method = 'POST';
 
-    formData.append(
-      'project',
-      JSON.stringify({ projId: project._id, cliEmail: project.clientEmail })
-    );
+    formData.append('projId', project._id);
+    formData.append('cliEmail', project.clientEmail);
+
     files.forEach((file) => {
-      formData.append(file.name, file);
+      formData.append('file', file);
     });
 
     const data = await fetch('/api/files', {
@@ -82,14 +81,9 @@ const Project = ({ project, onChange }) => {
     const formData = new FormData();
     let method = 'PUT';
 
-    formData.append(
-      'project',
-      JSON.stringify({
-        projId: project._id,
-        cliEmail: project.clientEmail,
-        file: { _id: fileId, name },
-      })
-    );
+    formData.append('projId', project._id);
+    formData.append('cliEmail', project.clientEmail);
+    formData.append('fileId', fileId);
 
     const data = await fetch('/api/files', {
       method: method,

@@ -1,6 +1,11 @@
+import fs from 'fs';
+import path from 'path';
 import mongoose from 'mongoose';
+import s3Object from '../util/s3';
 
 const Schema = mongoose.Schema;
+
+const s3 = s3Object();
 
 const fileSchema = new Schema({
   name: {
@@ -12,10 +17,6 @@ const fileSchema = new Schema({
     required: true,
   },
   key: {
-    type: String,
-    required: true,
-  },
-  url: {
     type: String,
     required: true,
   },
@@ -85,5 +86,30 @@ const project = new Schema({
 project.query.byEmail = function (email) {
   return this.where({ clientEmail: email });
 };
+
+project.pre('findByIdAndRemove', function () {
+  console.log('removing')
+  const proms = [];
+  if (process.env.STORAGE_TYPE === 's3') {
+    this.files.forEach((file) => {
+      proms.push(
+        s3
+          .deleteObject({ Bucket: process.env.AWS_BUCKET, Key: file.key })
+          .promise()
+      );
+    });
+  } else {
+    this.files.forEach((file) => {
+      proms.push(
+        promisify(fs.unlink)(
+          path.resolve(process.cwd(), 'public', 'tempFiles', file.key)
+        )
+      );
+    });
+  }
+  Promise.all(proms).then(() => {
+    return;
+  });
+});
 
 export default mongoose.models.Project || mongoose.model('Project', project);

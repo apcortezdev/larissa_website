@@ -1,10 +1,8 @@
-import fs from 'fs';
-import path from 'path';
 import nextConnect from 'next-connect';
 import upload from '../../../util/upload';
 import { getSession } from 'next-auth/client';
 import { getUserByEmail } from '../../../data/user';
-import { addFileToProject, removeFileFromProject } from '../../../data/project';
+import { getProjectById, addFileToProject } from '../../../data/project';
 
 function onError(err, req, res, next) {
   console.log(err);
@@ -24,16 +22,27 @@ handler.use(async (req, res, next) => {
     return;
   }
 
+  if (!req.headers['project-id'] || !req.headers['client-email']) {
+    res.status(400).json({ message: 'Information Missing.' });
+    return;
+  }
+
   try {
     const user = await getUserByEmail(session.user.email);
+    if (!user) {
+      res.status(404).json({ message: 'Usuário não encontrado.' });
+      return;
+    }
+
+    const proj = await getProjectById(req.headers['project-id']);
     if (
       user.permission !== process.env.PERM_ADM &&
-      session.user.email !== req.body.cliEmail
+      session.user.email !== proj.clientEmail
     ) {
       res.status(403).json({ message: 'Forbidden.' });
       return;
     }
-    req.user = user;
+
     next();
   } catch (err) {
     res.status(500).json({
@@ -59,56 +68,10 @@ handler.post(async (req, res) => {
 
     res.status(201).json({
       statusCode: '201',
-      project: {
-        _id: updatedProject._id,
-        name: updatedProject.name,
-        files: updatedProject.files,
-      },
+      project: updatedProject,
     });
   } catch (err) {
-    res.status(500).json({
-      statusCode: '500',
-      message: 'ERROR SAVING: ' + err.message,
-    });
-  }
-});
-
-handler.delete(async (req, res) => {
-  try {
-    const updatedProject = await removeFileFromProject(
-      req.body.projId,
-      req.body.fileId
-    );
-
-    if (process.env.STORAGE_TYPE === 'local') {
-      const dir = path.resolve(
-        process.cwd(),
-        'public',
-        'tempFiles',
-        updatedProject.key
-      );
-      if (fs.existsSync(dir)) {
-        fs.rm(dir, { recursive: true }, (err) => {
-          if (err) {
-            res.status(500).json({
-              statusCode: '500',
-              message: 'ERROR DELETING IMAGES: ' + err.message,
-            });
-            return;
-          }
-        });
-      }
-    }
-
-    res.status(201).json({
-      statusCode: '201',
-      project: {
-        _id: updatedProject._id,
-        name: updatedProject.name,
-        files: updatedProject.files,
-      },
-    });
-  } catch (err) {
+    // delete file here
     res.status(500).json({
       statusCode: '500',
       message: 'ERROR SAVING: ' + err.message,

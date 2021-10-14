@@ -113,8 +113,12 @@
     margin: 0 1rem;
   }
 
+  .center {
+    text-align: center;
+  }
+
   .discontinue {
-    display: flex;
+    display: inline-flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
@@ -135,6 +139,14 @@
 
   .dialogLong {
     height: 25rem;
+    @include media-min-width(25rem) {
+      height: 20rem;
+    }
+  }
+  .dialogLonger {
+    height: 30rem;
+    max-width: 33rem;
+    padding: 2rem 3rem;
     @include media-min-width(25rem) {
       height: 20rem;
     }

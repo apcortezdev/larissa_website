@@ -11,7 +11,7 @@ import {
   validatePasswordStrength,
 } from '../../validation/frontValidation';
 
-export default function RecoveryPage({ valid, email, userId, recoveryToken }) {
+export default function RecoveryPage({ url, valid, email, userId, recoveryToken }) {
   const submitIcon = (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -94,7 +94,7 @@ export default function RecoveryPage({ valid, email, userId, recoveryToken }) {
           content="Escritório de Arquitetura Larissa Paschoalotto - Recuperação de senha"
         />
         <link rel="icon" href="/favicon.ico" />
-        <link href={'http://localhost:3000/'} rel="canonical" />
+        <link href={`${url}/recovery`} rel="canonical" />
       </Head>
       <main id="top" className={styles.main}>
         <article className={styles.content}>
@@ -175,6 +175,7 @@ export async function getServerSideProps(context) {
   if (date.getTime() < exp.getTime()) {
     return {
       props: {
+        url: process.env.APP_URL,
         valid: true,
         email: user.email,
         userId: user._id.toString(),

@@ -5,7 +5,7 @@ import LarissaLogo from '../components/UI/LarissaLogo';
 import Button from '../components/utils/Button';
 import styles from '../styles/Contato.module.scss';
 
-export default function Contato(props) {
+export default function Contato({url}) {
   const sendMessage = (event) => {
     event.preventDefault();
   };
@@ -31,7 +31,7 @@ export default function Contato(props) {
           content="Escritório de Arquitetura Larissa Paschoalotto"
         />
         <link rel="icon" href="/favicon.ico" />
-        <link href={'http://localhost:3000/contato'} rel="canonical" />
+        <link href={`${url}/contato`} rel="canonical" />
       </Head>
       <main id="top" className={styles.main}>
         <div className={styles.content}>
@@ -139,6 +139,8 @@ export default function Contato(props) {
 
 export async function getStaticProps(context) {
   return {
-    props: {},
+    props: {
+      url: process.env.APP_URL,
+    },
   };
 }

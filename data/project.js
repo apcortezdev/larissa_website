@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import dbConnect from '../util/dbConnect';
-import { sendNewUserEmail } from '../util/email';
+import { sendNewUserEmail, sendProjectNotificationEmail } from '../util/email';
 import Project from '../models/project';
 import { postUser, deletetUser, getUserByEmail } from './user';
 import {
@@ -78,14 +78,6 @@ const hasErrors = (project) => {
   }
 
   return errors;
-};
-
-const deleteFile = async (fileKey) => {
-  const file = path.join(process.cwd(), 'public', 'tempFiles', fileKey);
-  if (fs.existsSync(file)) {
-    fs.rmSync(file);
-  }
-  return path.join(file);
 };
 
 export async function postProject(project) {
@@ -209,7 +201,17 @@ export async function addFileToProject(_id, file) {
       project.files = [file];
     }
 
-    return await project.save();
+    const saved = await project.save();
+    return {
+      _id: saved._id,
+      name: saved.name,
+      newFile: {
+        _id: saved.files[saved.files.length - 1]._id,
+        name: saved.files[saved.files.length - 1].name,
+        size: saved.files[saved.files.length - 1].size,
+        key: saved.files[saved.files.length - 1].key,
+      },
+    };
   } catch (err) {
     console.log(err);
     throw new Error('ERN0P9');
@@ -254,19 +256,33 @@ export async function deleteProject(projId, email) {
 
   try {
     let user;
-    if (process.env.STORAGE_TYPE === 'local') {
-      let project = await Project.findById(projId);
-      project.files.forEach(file => {
-        deleteFile(file.key);
-      });
-    }
     const projs = await getProjectsByClientEmail(email);
-    const proj = await Project.findByIdAndDelete(projId);
-    if (projs.projects.length === 1) {
+    const proj = await Project.findByIdAndRemove(projId);
+    if (projs.length === 1) {
       user = await deletetUser(projs.client._id.toString());
     }
     return { proj, user };
   } catch (err) {
     throw new Error('ERN0P13: ' + err.message);
   }
+}
+
+export async function getProjectById(projId) {
+  let project = null;
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0P14');
+  }
+
+  try {
+    project = await Project.findById(projId).select(
+      '_id name clientFirstName clientLastName clientEmail clientCpfCnpj clientPhone address1 address2 city state cep createdOn files'
+    );
+  } catch (err) {
+    if (err) {
+      throw new Error('ERN0P15');
+    }
+  }
+  return project;
 }

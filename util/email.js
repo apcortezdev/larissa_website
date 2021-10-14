@@ -3,7 +3,7 @@ export async function sendNewUserEmail(user, tempPassword) {
 }
 
 export async function sendProjectNotificationEmail(user, notification) {
-  return false;
+  return true;
 }
 
 export async function sendRecoveryEmail(user) {

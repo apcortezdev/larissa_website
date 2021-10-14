@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { useRouter } from 'next/router';
 import styles from './Project.module.scss';
 import { useDropzone } from 'react-dropzone';
 import { useCallback, useState } from 'react';
@@ -6,6 +7,7 @@ import Dialog from '../UI/Dialog';
 import Loading from '../UI/Loading';
 
 const Project = ({ project, onChange }) => {
+  const router = useRouter();
   // dialog
   const [show, setShowDialog] = useState(false);
   const [onOk, setOnOk] = useState(null);
@@ -16,10 +18,25 @@ const Project = ({ project, onChange }) => {
 
   // file upload
   const [files, setFiles] = useState([]);
-  const onDrop = useCallback((acceptedFiles) => {
-    setFiles(acceptedFiles);
+  const onDrop = useCallback((acceptedFiles, fileRejections) => {
+    if (fileRejections.length > 0) {
+      const names = fileRejections.map((file) => file.file.name).join(', ');
+      setMessage(
+        'Estes arquivos passam do limite de tamanho de 1 Mb: ' +
+          names +
+          '. Por favor, diminua o tamanho deles.'
+      );
+      setStyle(styles.dialogLonger);
+      setOnOk(() => () => setShowDialog(false));
+      setShowDialog(true);
+    } else {
+      setFiles(acceptedFiles);
+    }
   }, []);
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    maxSize: 1000000,
+  });
 
   const address = () => {
     let add = [];
@@ -36,63 +53,99 @@ const Project = ({ project, onChange }) => {
     setFiles([]);
   };
 
+  const reload = () => {
+    router.reload();
+  };
+
   const sendFiles = async () => {
+    setStyle('');
+    setOnCancel(null);
+    setOnOk(() => () => setShowDialog(false));
     if (files.length === 0) {
       setMessage('Nenhum arquivo selecionado.');
-      setStyle('');
-      setOnCancel(null);
-      setOnOk(() => () => setShowDialog(false));
       setShowDialog(true);
       return;
     }
     setLoading(true);
-    const formData = new FormData();
-    let method = 'POST';
+    const method = 'POST';
 
-    formData.append('projId', project._id);
-    formData.append('cliEmail', project.clientEmail);
-
+    const proms = [];
     files.forEach((file) => {
+      const formData = new FormData();
+      formData.append('projId', project._id);
       formData.append('file', file);
+      proms.push(
+        fetch('/api/files/setFile', {
+          method: method,
+          headers: {
+            'project-id': project._id,
+            'client-email': project.clientEmail,
+          },
+          body: formData,
+        })
+      );
     });
 
-    const data = await fetch('/api/files/setFile', {
-      method: method,
-      body: formData,
-    });
-    switch (data.status) {
-      case 201:
-        const savedProject = await data.json();
-        onChange({ ...project, files: savedProject.project.files });
-        setFiles([]);
-        break;
-      default:
-        setMessage('Ops, algo deu errado. Por favor, tente daqui a pouquinho!');
-        setStyle('');
-        setOnOk(() => () => setShowDialog(false));
-        setShowDialog(true);
-        break;
+    const allFetch = Promise.all(proms);
+
+    try {
+      const results = await allFetch;
+      const datas = [];
+      const error = false;
+      results.forEach((result) => {
+        if (result.status === 201) datas.push(result.json());
+        else error = true;
+      });
+      Promise.all(datas)
+        .then((saves) => {
+          const fileList = [...project.files];
+          saves.forEach((save) => {
+            if (save.statusCode === '201') {
+              fileList.push(save.project.newFile);
+            }
+          });
+          setFiles([]);
+          onChange({ ...project, files: fileList });
+          if (error) {
+            setMessage(
+              'Alguns arquivos não foram salvos pois contêm erros. Por favor, verifique a lista de arquivos.'
+            );
+            setShowDialog(true);
+          }
+        })
+        .catch(() => {
+          setMessage(
+            'Ops, algo deu errado. Por favor, atualize a página e tente daqui a pouquinho!'
+          );
+          setShowDialog(true);
+        });
+    } catch (err) {
+      setMessage(
+        'Ops, algo deu errado. Alguns arquivos não foram salvos pois contêm erros. Por favor, verifique a lista de arquivos.'
+      );
+      setOnOk(() => () => reload());
+      setShowDialog(true);
     }
     setLoading(false);
   };
 
-  const deleteFile = async (fileId, name) => {
+  const deleteFile = async (fileId, index) => {
     setLoading(true);
-    const formData = new FormData();
-    let method = 'PUT';
+    let method = 'DELETE';
 
-    formData.append('projId', project._id);
-    formData.append('cliEmail', project.clientEmail);
-    formData.append('fileId', fileId);
-
-    const data = await fetch('/api/files', {
+    const data = await fetch('/api/files/removeFile', {
       method: method,
-      body: formData,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        projId: project._id,
+        fileId: fileId,
+      }),
     });
     switch (data.status) {
       case 201:
-        const savedProject = await data.json();
-        onChange({ ...project, files: savedProject.project.files });
+        const files = [...project.files];
+        files.splice(index, 1);
+        onChange({ ...project, files: files });
         break;
       default:
         setMessage('Ops, algo deu errado. Por favor, tente daqui a pouquinho!');
@@ -168,7 +221,7 @@ const Project = ({ project, onChange }) => {
 
   const getFile = async (event, key) => {
     if (event) event.preventDefault();
-    const data = await fetch(`/api/files/${key}`);
+    const data = await fetch(`/api/files/${project._id}/${key}`);
     const result = await data.json();
     window.open(result.url);
   };
@@ -225,7 +278,7 @@ const Project = ({ project, onChange }) => {
         </section>
         <section className={styles.files}>
           <p>Arquivos</p>
-          {project.files?.map((file) => (
+          {project.files?.map((file, index) => (
             <div key={file._id}>
               <p onClick={(e) => getFile(e, file.key)}>{file.name}</p>
               <svg
@@ -234,7 +287,7 @@ const Project = ({ project, onChange }) => {
                 height="16"
                 fill="currentColor"
                 viewBox="0 0 16 16"
-                onClick={() => deleteFile(file._id, file.name)}
+                onClick={() => deleteFile(file._id, index)}
               >
                 <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
               </svg>
@@ -296,7 +349,7 @@ const Project = ({ project, onChange }) => {
             </span>
           </span>
         </section>
-        <section>
+        <section className={styles.center}>
           <span className={styles.discontinue} onClick={discontinueDialog}>
             Arquivar Projeto
             <svg

@@ -62,17 +62,15 @@ const post = async (req, res) => {
 const del = async (req, res) => {
   try {
     const deletedProject = await deleteProject(req.body.projId, req.body.email);
-    res
-      .status(200)
-      .json({
-        statusCode: '200',
-        deleted: {
-          project: !!deletedProject.proj,
-          client: !!deletedProject.user,
-        },
-      });
+    res.status(200).json({
+      statusCode: '200',
+      deleted: {
+        project: !!deletedProject.proj,
+        client: !!deletedProject.user,
+      },
+    });
   } catch (err) {
-    if (err.message.startsWith('ERN0P1')) {
+    if (err.message.startsWith('ERN0P1:')) {
       res.status(400).json({
         statusCode: '400',
         message: err.message.slice(7),

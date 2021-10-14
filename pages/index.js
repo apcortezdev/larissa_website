@@ -1,13 +1,10 @@
 import Head from 'next/head';
-import LarissaLogo from '../components/UI/LarissaLogo';
-import Arquitetura from '../components/UI/Arquitetura';
-import MainNav from '../components/UI/MainNav';
-import Footer from '../components/UI/Footer';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import Arquitetura from '../components/UI/Arquitetura';
+import LarissaLogo from '../components/UI/LarissaLogo';
 import styles from '../styles/Home.module.scss';
 
-export default function Home(props) {
+export default function Home({ url }) {
   return (
     <div className={styles.container}>
       <Head>
@@ -17,7 +14,7 @@ export default function Home(props) {
           content="Escritório de Arquitetura Larissa Paschoalotto"
         />
         <link rel="icon" href="/favicon.ico" />
-        <link href={'http://localhost:3000/'} rel="canonical" />
+        <link href={url} rel="canonical" />
       </Head>
       <main id="top" className={styles.main}>
         <section className={styles.sectionOne}>
@@ -114,6 +111,8 @@ export default function Home(props) {
 
 export async function getStaticProps(context) {
   return {
-    props: {},
+    props: {
+      url: process.env.APP_URL,
+    },
   };
 }

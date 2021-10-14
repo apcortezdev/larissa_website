@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import Link from 'next/link';
 import { signin, signOut } from 'next-auth/client';
-import { useSession, getSession } from 'next-auth/client';
+import { useSession } from 'next-auth/client';
 import { useDropzone } from 'react-dropzone';
 import Backdrop from './Backdrop';
 import { useEffect, useRef, useState } from 'react';
@@ -184,11 +184,12 @@ export default function MainNav() {
   }
 
   const openDrawer = async () => {
-    setLoading(true);
     if (session) {
       if (session.user.perms === 'adm') {
         router.push({ pathname: '/acesso' });
       } else {
+        setLogToggle(false);
+        setLoading(true);
         if (projects.length === 0) {
           const projs = await getUserProjects();
           if (!projs) {
@@ -206,13 +207,13 @@ export default function MainNav() {
         setPassword('');
         setPasswordConf('');
         setOpenRepo((v) => !v);
+        setLoading(false);
       }
     } else {
       setEmailValid(true);
       setPasswordValid(true);
       setLogToggle((v) => !v);
     }
-    setLoading(false);
   };
 
   const setActiveProject = (project) => {
@@ -233,54 +234,133 @@ export default function MainNav() {
 
   useEffect(() => {
     if (projects.length === 0 && session && logToggle) {
-      setLogToggle(false);
       openDrawer();
     }
   });
 
   // file upload
   const [files, setFiles] = useState([]);
-  const onDrop = useCallback((acceptedFiles) => {
-    setFiles(acceptedFiles);
+  const onDrop = useCallback((acceptedFiles, fileRejections) => {
+    if (fileRejections.length > 0) {
+      setMessage(
+        'Erro: os arquivos precisam ter no máximo 1Mb de tamanho cada.'
+      );
+      setOnOk(() => () => setShowDialog(false));
+      setShowDialog(true);
+    } else {
+      setFiles(acceptedFiles);
+    }
   }, []);
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    maxSize: 1000000,
+  });
 
   const cancelFiles = () => {
     setFiles([]);
   };
 
   const sendFiles = async () => {
+    setOnCancel(null);
+    setOnOk(() => () => setShowDialog(false));
     if (files.length === 0) {
       setMessage('Nenhum arquivo selecionado.');
-      setOnCancel(null);
-      setOnOk(() => () => setShowDialog(false));
       setShowDialog(true);
       return;
     }
     setLoading(true);
-    const formData = new FormData();
-    let method = 'POST';
+    const method = 'POST';
 
-    formData.append(
-      'project',
-      JSON.stringify({ projId: activeProj._id, cliEmail: session.user.email })
-    );
+    const proms = [];
     files.forEach((file) => {
-      formData.append(file.name, file);
+      const formData = new FormData();
+      formData.append('projId', activeProj._id);
+      formData.append('file', file);
+      proms.push(
+        fetch('/api/files/setFile', {
+          method: method,
+          headers: { 
+            'project-id': activeProj._id,
+            'client-email': session.user.email
+          },
+          body: formData,
+        })
+      );
     });
 
-    const data = await fetch('/api/files/setFile', {
+    const allFetch = Promise.all(proms);
+
+    try {
+      const results = await allFetch;
+      const datas = [];
+      const error = false;
+      results.forEach((result) => {
+        if (result.status === 201) datas.push(result.json());
+        else error = true;
+      });
+      Promise.all(datas)
+        .then((saves) => {
+          const fileList = [...activeProj.files];
+          saves.forEach((save) => {
+            if (save.statusCode === '201') {
+              fileList.push(save.project.newFile);
+            }
+          });
+          setFiles([]);
+          setActiveProj(prj => ({ ...prj, files: fileList }));
+          if (error) {
+            setMessage(
+              'Alguns arquivos não foram salvos pois contêm erros. Por favor, verifique a lista de arquivos.'
+            );
+            setShowDialog(true);
+          }
+        })
+        .catch(() => {
+          setMessage(
+            'Ops, algo deu errado. Por favor, atualize a página e tente daqui a pouquinho!'
+          );
+          setShowDialog(true);
+        });
+    } catch (err) {
+      setMessage(
+        'Ops, algo deu errado. Alguns arquivos não foram salvos pois contêm erros. Por favor, verifique a lista de arquivos.'
+      );
+      // setOnOk(() => () => reload());
+      setShowDialog(true);
+    }
+    setLoading(false);
+  };
+
+  const deleteFile = async (fileId, index) => {
+    setLoading(true);
+    let method = 'DELETE';
+
+    const data = await fetch('/api/files/removeFile', {
       method: method,
-      body: formData,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        projId: activeProj._id,
+        fileId: fileId,
+      }),
     });
     switch (data.status) {
       case 201:
-        const savedProject = await data.json();
-        setActiveProj(savedProject.project);
-        setFiles([]);
+        const files = [...activeProj.files];
+        files.splice(index, 1);
+        setActiveProj((prj) => ({
+          ...prj,
+          files: files,
+        }));
+        setProjects((prjs) => {
+          const newList = [...prjs];
+          newList[newList.findIndex((p) => p._id === activeProj._id)].files =
+            files;
+          return newList;
+        });
         break;
       default:
         setMessage('Ops, algo deu errado. Por favor, tente daqui a pouquinho!');
+        setStyle('');
         setOnOk(() => () => setShowDialog(false));
         setShowDialog(true);
         break;
@@ -288,36 +368,11 @@ export default function MainNav() {
     setLoading(false);
   };
 
-  const deleteFile = async (fileId, name) => {
-    setLoading(true);
-    const formData = new FormData();
-    let method = 'PUT';
-
-    formData.append(
-      'project',
-      JSON.stringify({
-        projId: activeProj._id,
-        cliEmail: session.user.email,
-        file: { _id: fileId, name },
-      })
-    );
-
-    const data = await fetch('/api/files/setFile', {
-      method: method,
-      body: formData,
-    });
-    switch (data.status) {
-      case 201:
-        const savedProject = await data.json();
-        setActiveProj(savedProject.project);
-        break;
-      default:
-        setMessage('Ops, algo deu errado. Por favor, tente daqui a pouquinho!');
-        setOnOk(() => () => setShowDialog(false));
-        setShowDialog(true);
-        break;
-    }
-    setLoading(false);
+  const getFile = async (event, key) => {
+    if (event) event.preventDefault();
+    const data = await fetch(`/api/files/${activeProj._id}/${key}`);
+    const result = await data.json();
+    window.open(result.url);
   };
 
   function recoverPass() {
@@ -580,20 +635,18 @@ export default function MainNav() {
                     <p>arquivos:</p>
                     <div className={styles.filesBox}>
                       {activeProj?.files.length > 0 ? (
-                        activeProj?.files.map((file) => (
+                        activeProj?.files.map((file, index) => (
                           <div key={file.name}>
-                            <Link href={file.uri}>
-                              <a rel="noreferrer noopener" target={'_blank'}>
-                                {file.name}
-                              </a>
-                            </Link>
+                            <p onClick={(e) => getFile(e, file.key)}>
+                              {file.name}
+                            </p>
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               width="16"
                               height="16"
                               fill="currentColor"
                               viewBox="0 0 16 16"
-                              onClick={() => deleteFile(file._id, file.name)}
+                              onClick={() => deleteFile(file._id, index)}
                             >
                               <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
                             </svg>

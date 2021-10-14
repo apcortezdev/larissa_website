@@ -7,7 +7,7 @@ import NewProject from '../../components/utils/NewProject';
 import { getProjects } from '../../data/project';
 import { getUserByEmail } from '../../data/user';
 
-export default function AcessoAdm({ projs }) {
+export default function AcessoAdm({ url, projs }) {
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export default function AcessoAdm({ projs }) {
           content="Escritório de Arquitetura Larissa Paschoalotto"
         />
         <link rel="icon" href="/favicon.ico" />
-        <link href={'http://localhost:3000/acesso'} rel="canonical" />
+        <link href={`${url}/acesso`} rel="canonical" />
       </Head>
       <main id="top" className={styles.main}>
         <article className={styles.content}>
@@ -146,6 +146,7 @@ export async function getServerSideProps(context) {
 
   return {
     props: {
+      url: process.env.APP_URL,
       projs: JSON.parse(JSON.stringify(projects)),
       session: session,
     },

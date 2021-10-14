@@ -40,8 +40,7 @@ const DisplayImage = ({ pic, display, onDismiss }) => {
   );
 };
 
-export default function Galeria(props) {
-  const galery = getGaleryPics();
+export default function Galeria({ galery, url }) {
   const [imageCase, setImageCase] = useState();
   const [display, setDisplay] = useState(false);
 
@@ -66,7 +65,7 @@ export default function Galeria(props) {
           content="Escritório de Arquitetura Larissa Paschoalotto"
         />
         <link rel="icon" href="/favicon.ico" />
-        <link href={'http://localhost:3000/galeria'} rel="canonical" />
+        <link href={`${url}/galeria`} rel="canonical" />
       </Head>
 
       <main id="top" className={styles.main}>
@@ -101,7 +100,11 @@ export default function Galeria(props) {
 }
 
 export async function getStaticProps(context) {
+  const galery = getGaleryPics();
   return {
-    props: {},
+    props: {
+      url: process.env.APP_URL,
+      galery: galery,
+    },
   };
 }

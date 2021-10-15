@@ -87,8 +87,7 @@ project.query.byEmail = function (email) {
   return this.where({ clientEmail: email });
 };
 
-project.pre('findByIdAndRemove', function () {
-  console.log('removing')
+project.pre('remove', function () {
   const proms = [];
   if (process.env.STORAGE_TYPE === 's3') {
     this.files.forEach((file) => {
@@ -107,7 +106,7 @@ project.pre('findByIdAndRemove', function () {
       );
     });
   }
-  Promise.all(proms).then(() => {
+  Promise.all(proms).then((status) => {
     return;
   });
 });

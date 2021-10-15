@@ -1,18 +1,16 @@
-import fs from 'fs';
-import path from 'path';
-import dbConnect from '../util/dbConnect';
-import { sendNewUserEmail, sendProjectNotificationEmail } from '../util/email';
 import Project from '../models/project';
-import { postUser, deletetUser, getUserByEmail } from './user';
+import dbConnect from '../util/dbConnect';
+import { sendProjectNotificationEmail, sendWelcomeEmail } from '../util/email';
 import {
-  validateIsValidName,
-  validateEmail,
-  validateCPF,
-  validateCNPJ,
-  validateState,
-  validatePhone,
   generateKey,
+  validateCNPJ,
+  validateCPF,
+  validateEmail,
+  validateIsValidName,
+  validatePhone,
+  validateState,
 } from '../validation/backValidation';
+import { deletetUser, getUserByEmail, postUser } from './user';
 
 const hasErrors = (project) => {
   // name
@@ -118,9 +116,9 @@ export async function postProject(project) {
     const created = await newProject.save();
 
     if (passTemp) {
-      sendNewUserEmail();
+      sendWelcomeEmail(user, passTemp);
     } else {
-      sendProjectNotificationEmail();
+      sendProjectNotificationEmail(user, 'new project');
     }
 
     return {
@@ -257,7 +255,8 @@ export async function deleteProject(projId, email) {
   try {
     let user;
     const projs = await getProjectsByClientEmail(email);
-    const proj = await Project.findByIdAndRemove(projId);
+    const proj = await Project.findById(projId);
+    const deleted = await proj.remove();
     if (projs.length === 1) {
       user = await deletetUser(projs.client._id.toString());
     }

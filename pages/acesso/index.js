@@ -106,7 +106,7 @@ export default function AcessoAdm({ url, projs }) {
                 onDismiss={() => setNewProject(false)}
                 onNew={(proj) => {
                   setProjects((pjs) => [...pjs, proj]);
-                  setViewProj({ index: projects.length + 1, proj });
+                  setViewProj({ index: projects.length, proj });
                 }}
               />
             ) : (

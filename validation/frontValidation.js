@@ -136,6 +136,7 @@ const validateIsValidName = (name) => {
 const validatePhone = (phone) => {
   if (!phone) return false;
   if (phone.length !== 10 && phone.length !== 11) return false;
+  if (/[a-z]/gi.test(phone)) return false;
   return true;
 };
 

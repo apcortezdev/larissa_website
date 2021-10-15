@@ -98,10 +98,12 @@
       }
 
       .section_contact {
-        margin-top: 8rem;
+        margin-top: 0;
         margin-right: auto;
         margin-left: auto;
-        margin-bottom: 8rem;
+        margin-bottom: 0;
+        padding-bottom: 8rem;
+        padding-top: 8rem;
         max-width: 70rem;
 
         & > article {
@@ -158,24 +160,51 @@
             flex-direction: column;
             align-items: flex-end;
 
-            > textarea,
-            > input {
-              padding: 1rem;
+            > div {
+              display: flex;
+              flex-direction: column;
+              position: relative;
               width: 100%;
-              min-width: 10rem;
-              font-family: inherit;
-              font-size: inherit;
-              border: 1px solid map-get($map: $colors, $key: grey);
-              outline: none;
-              margin-bottom: 1rem;
+              margin-bottom: 1.5rem;
 
-              :focus {
+              .inputTxt,
+              > textarea,
+              > input {
+                position: relative;
+                border-radius: 0;
+                padding: 1rem;
+                width: 100%;
+                min-width: 10rem;
+                font-family: inherit;
+                font-size: inherit;
+                border: 1px solid map-get($map: $colors, $key: grey);
                 outline: none;
+
+                :focus {
+                  outline: none;
+                }
+              }
+
+              > textarea {
+                height: 10rem;
               }
             }
 
-            > textarea {
-              height: 10rem;
+            .invalid {
+              > textarea,
+              input {
+                border: 1px solid map-get($map: $colors, $key: red);
+              }
+            }
+
+            .invalid::after {
+              position: absolute;
+              top: 100%;
+              left: 1rem;
+              padding-top: 0.2rem;
+              font-size: 0.8rem;
+              color: map-get($map: $colors, $key: red);
+              content: 'Campo inválido';
             }
           }
         }
@@ -205,5 +234,9 @@
         }
       }
     }
+  }
+  .dialog {
+    padding: 0 2rem;
+    line-height: 1.6rem;
   }
 }

@@ -233,6 +233,7 @@ export default function MainNav() {
   };
 
   useEffect(() => {
+    console.log(session);
     if (projects.length === 0 && session && logToggle) {
       openDrawer();
     }
@@ -279,9 +280,9 @@ export default function MainNav() {
       proms.push(
         fetch('/api/files/setFile', {
           method: method,
-          headers: { 
+          headers: {
             'project-id': activeProj._id,
-            'client-email': session.user.email
+            'client-email': session.user.email,
           },
           body: formData,
         })
@@ -307,7 +308,7 @@ export default function MainNav() {
             }
           });
           setFiles([]);
-          setActiveProj(prj => ({ ...prj, files: fileList }));
+          setActiveProj((prj) => ({ ...prj, files: fileList }));
           if (error) {
             setMessage(
               'Alguns arquivos não foram salvos pois contêm erros. Por favor, verifique a lista de arquivos.'

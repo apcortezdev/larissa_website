@@ -1,13 +1,87 @@
+import { useState } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
 import Arquitetura from '../components/UI/Arquitetura';
 import LarissaLogo from '../components/UI/LarissaLogo';
 import Button from '../components/utils/Button';
 import styles from '../styles/Contato.module.scss';
+import { InputMask } from '../components/utils/FormComponents';
+import { validatePhone, validateEmail } from '../validation/frontValidation';
+import Loading from '../components/UI/Loading';
+import Dialog from '../components/UI/Dialog';
 
-export default function Contato({url}) {
-  const sendMessage = (event) => {
+export default function Contato({ url }) {
+  const [name, setName] = useState('');
+  const [isNameValid, setIsNameValid] = useState(true);
+  const [phone, setPhone] = useState('');
+  const [isPhoneValid, setIsPhoneValid] = useState(true);
+  const [email, setEmail] = useState('');
+  const [isEmailValid, setIsEmailValid] = useState(true);
+  const [message, setMessage] = useState('');
+  const [isMessageValid, setIsMessageValid] = useState(true);
+
+  // dialog
+  const [show, setShowDialog] = useState(false);
+  const [onOk, setOnOk] = useState(null);
+  const [messageDlg, setMessageDlg] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const validate = () => {
+    let valid = true;
+    setIsNameValid(true);
+    setIsPhoneValid(true);
+    setIsEmailValid(true);
+    setIsMessageValid(true);
+
+    if (name.trim().length === 0) {
+      setIsNameValid(false);
+      valid = false;
+    }
+    if (phone.trim().length !== 0 && !validatePhone(phone.trim())) {
+      setIsPhoneValid(false);
+      valid = false;
+    }
+    if (email.trim().length === 0 || !validateEmail(email.trim())) {
+      setIsEmailValid(false);
+      valid = false;
+    }
+    if (message.trim().length === 0) {
+      setIsMessageValid(false);
+      valid = false;
+    }
+    return valid;
+  };
+
+  const sendMessage = async (event) => {
     event.preventDefault();
+    if (validate()) {
+      setLoading(true);
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          phone,
+          email,
+          message,
+        }),
+      });
+      switch (response.status) {
+        case 201:
+          setMessageDlg(
+            'Sua mensagem foi enviada. Entraremos em contato em instantes com uma resposta!'
+          );
+          break;
+        default:
+          setMessageDlg(
+            'Desculpe, estamos com um probleminha mas já estamos resolvendo. Por favor, tente daqui a pouco!'
+          );
+          break;
+      }
+      setLoading(false);
+      setOnOk(() => () => setShowDialog(false));
+      setShowDialog(true);
+    }
   };
 
   const submit = (
@@ -60,10 +134,45 @@ export default function Contato({url}) {
             <article>
               <section className={styles.contact_messanger}>
                 <form className={styles.contact_form}>
-                  <input type="text" id="nome" placeholder="Nome" />
-                  <input type="text" id="phone" placeholder="Telefone" />
-                  <input type="email" id="email" placeholder="E-mail" />
-                  <textarea type="text" id="message" placeholder="Mensagem" />
+                  <div className={!isNameValid ? styles.invalid : ''}>
+                    <input
+                      type="text"
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Nome"
+                    />
+                  </div>
+                  <div className={!isPhoneValid ? styles.invalid : ''}>
+                    <InputMask
+                      className={styles.inputTxt}
+                      validationMessage="Campo inválido"
+                      mask={['(99) 9 9999-9999', '(99) 9999-9999']}
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      id="phone"
+                      type="text"
+                      placeholder="Telefone"
+                    />
+                  </div>
+                  <div className={!isEmailValid ? styles.invalid : ''}>
+                    <input
+                      type="email"
+                      id="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="E-mail"
+                    />
+                  </div>
+                  <div className={!isMessageValid ? styles.invalid : ''}>
+                    <textarea
+                      type="text"
+                      id="message"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      placeholder="Mensagem"
+                    />
+                  </div>
                   <Button type="submit" onClick={sendMessage} icon={submit}>
                     Enviar
                   </Button>
@@ -133,6 +242,10 @@ export default function Contato({url}) {
           </section>
         </div>
       </main>
+      <Dialog show={show} onOk={onOk} className={styles.dialog}>
+        {messageDlg}
+      </Dialog>
+      <Loading show={loading} />
     </div>
   );
 }

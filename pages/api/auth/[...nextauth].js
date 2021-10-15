@@ -34,7 +34,7 @@ export default NextAuth({
     async jwt(token) {
       const user = await setAccess(token.email);
       token.active = user.active;
-      token.perms = user.permission;
+      token.perms = user.permission === process.env.PERM_ADM ? 'adm' : 'cli';
       return token;
     },
     async session(session, token) {
@@ -47,13 +47,12 @@ export default NextAuth({
       } else {
         const user = await getUserByEmail(session.user.email);
         firstAccess = !user.active;
-        perms = user.perms;
+        perms = user.permission === process.env.PERM_ADM ? 'adm' : 'cli';;
       }
 
       session.user.firstAccess = firstAccess;
 
-      if (perms === process.env.PERM_ADM) session.user.perms = 'adm';
-      else session.user.perms = 'cli';
+      session.user.perms = perms;
       return session;
     },
   },

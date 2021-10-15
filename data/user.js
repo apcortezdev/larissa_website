@@ -14,7 +14,6 @@ const hashPassword = async (password) => {
 };
 
 export async function postUser(email, password) {
-  console.log(email + ': ' + password);
   if (!email) {
     throw new Error('ERN0U1: Email obrigatório');
   } else if (!validateEmail(email)) {

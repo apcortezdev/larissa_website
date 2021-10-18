@@ -142,7 +142,7 @@ export async function passwordRecover(email, log) {
     if (!user) {
       throw new Error('404');
     }
-    const recoveryToken = await generateKey(128);
+    const recoveryToken = await generateKey(64);
     const date = new Date();
     const exp = new Date();
     exp.setTime(date.getTime() + 1 * 60 * 60 * 1000);
@@ -154,6 +154,8 @@ export async function passwordRecover(email, log) {
     };
     if (!user.recoveryLogs) user.recoveryLogs = [log];
     else user.recoveryLogs.push(log);
+
+    if (!user.active) user.active = true;
 
     await user.save();
 

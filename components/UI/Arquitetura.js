@@ -1,4 +1,3 @@
-import { useEffect, useRef } from 'react';
 import styles from './LarissaLogo.module.scss';
 
 export default function ArquiteturaLogo() {

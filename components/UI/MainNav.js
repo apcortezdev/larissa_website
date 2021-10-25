@@ -233,6 +233,7 @@ export default function MainNav() {
   };
 
   useEffect(() => {
+    console.log('session');
     console.log(session);
     if (projects.length === 0 && session && logToggle) {
       openDrawer();

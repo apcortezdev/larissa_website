@@ -1,0 +1,50 @@
+@import '../../../styles/_colors.scss';
+@import '../../../styles/_mixin.scss';
+
+.container {
+  position: fixed;
+  left: 0;
+  bottom: 5rem;
+  font-size: 0.8rem;
+  line-height: 1rem;
+  padding: 2rem;
+  text-align: justify;
+  width: 100%;
+  max-width: 25rem;
+  height: 15rem;
+  background-color: map-get($map: $colors, $key: light-grey);
+
+  @include media-min-width(18.75rem) {
+    bottom: 2rem;
+    font-size: 1rem;
+    line-height: 1.3rem;
+
+    @include media-min-width(26rem) {
+      bottom: 1rem;
+      left: 1rem;
+      font-size: 1rem;
+      line-height: 1.5rem;
+    }
+  }
+
+  > p {
+    margin: 0;
+    > a {
+      color: map-get($map: $colors, $key: darkest-grey);
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .buttonSection {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin-top: 1rem;
+  }
+}
+
+.not {
+  display: none;
+}

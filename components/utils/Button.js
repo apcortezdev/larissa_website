@@ -1,12 +1,13 @@
 import styles from './Button.module.scss';
 import PropTypes from 'prop-types';
 
-export default function Button({ className, style, children, icon, ...rest }) {
+export default function Button({ className, style, children, icon, animate = true, ...rest }) {
   return (
     <button
       className={[
         styles.button,
         style === 'secondary' ? styles.secondary : styles.primary,
+        animate ? styles.animate : '',
         className,
       ].join(' ')}
       {...rest}

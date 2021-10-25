@@ -71,6 +71,10 @@ export default function Contato({ url }) {
           setMessageDlg(
             'Sua mensagem foi enviada. Entraremos em contato em instantes com uma resposta!'
           );
+          setName('');
+          setPhone('');
+          setEmail('');
+          setMessage('');
           break;
         default:
           setMessageDlg(
@@ -235,7 +239,7 @@ export default function Contato({ url }) {
                       <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
                     </svg>
                   </span>
-                  Rua das Cruzes azuis 3000
+                  Endereço fixo em breve!
                 </span>
               </section>
             </article>
@@ -250,7 +254,7 @@ export default function Contato({ url }) {
   );
 }
 
-export async function getStaticProps(context) {
+export async function getStaticProps() {
   return {
     props: {
       url: process.env.APP_URL,

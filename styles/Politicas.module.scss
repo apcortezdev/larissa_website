@@ -1,0 +1,42 @@
+@import '../styles/_colors.scss';
+@import '../styles/_mixin.scss';
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: map-get($map: $colors, $key: white);
+}
+
+.main {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.content {
+  width: 100%;
+  max-width: 70rem;
+  margin-top: 4rem;
+  min-height: calc(100vh - 14rem);
+  margin-right: auto;
+  margin-left: auto;
+  margin-bottom: 5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  > p {
+    text-align: center;
+    width: 100%;
+    margin: 0;
+    padding: 5rem 0;
+  }
+
+  > textarea {
+    width: 80%;
+    height: 50vh;
+    resize: none;
+  }
+}

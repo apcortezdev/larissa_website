@@ -211,7 +211,6 @@ export async function addFileToProject(_id, file) {
       },
     };
   } catch (err) {
-    console.log(err);
     throw new Error('ERN0P9');
   }
 }

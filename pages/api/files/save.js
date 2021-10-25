@@ -5,7 +5,6 @@ import { getUserByEmail } from '../../../data/user';
 import { getProjectById, addFileToProject } from '../../../data/project';
 
 function onError(err, req, res, next) {
-  console.log(err);
   res.status(500).end(err.toString());
 }
 
@@ -55,6 +54,7 @@ handler.use(async (req, res, next) => {
 handler.use(upload.single('file'));
 
 handler.post(async (req, res) => {
+  console.log(req.file.originalname);
   try {
     const updatedProject = await addFileToProject(req.body.projId, {
       name: req.file.originalname,
@@ -65,12 +65,14 @@ handler.post(async (req, res) => {
           ? req.file.path
           : req.file.location,
     });
-
+    console.log('all good');
     res.status(201).json({
       statusCode: '201',
       project: updatedProject,
     });
   } catch (err) {
+    console.log('error');
+    console.log(err);
     // delete file here
     res.status(500).json({
       statusCode: '500',

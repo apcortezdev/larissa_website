@@ -53,6 +53,45 @@ const recoveryLogSchema = new Schema({
   },
 });
 
+const accessLogSchema = new Schema({
+  country_code: {
+    type: String,
+    required: true,
+  },
+  country_name: {
+    type: String,
+    required: true,
+  },
+  city: {
+    type: String,
+    required: true,
+  },
+  postal: {
+    type: String,
+    required: true,
+  },
+  latitude: {
+    type: String,
+    required: true,
+  },
+  longitude: {
+    type: String,
+    required: true,
+  },
+  IPv4: {
+    type: String,
+    required: true,
+  },
+  state: {
+    type: String,
+    required: true,
+  },
+  accessOn: {
+    type: Date,
+    required: new Date(),
+  },
+});
+
 const user = new Schema({
   email: {
     type: String,
@@ -75,6 +114,7 @@ const user = new Schema({
     required: false,
   },
   recoveryLogs: [recoveryLogSchema],
+  accessLogs: [accessLogSchema],
 });
 
 user.query.byEmail = function (email) {

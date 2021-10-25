@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth';
 import providers from 'next-auth/providers';
-import { getUserByEmail, setAccess } from '../../../data/user';
+import { getUserByEmail, getUserHash, saveUserLog } from '../../../data/user';
 import { compare } from 'bcryptjs';
 
 export default NextAuth({
@@ -14,7 +14,7 @@ export default NextAuth({
   providers: [
     providers.Credentials({
       async authorize(credentials) {
-        const user = await getUserByEmail(credentials.email);
+        const user = await getUserHash(credentials.email);
         if (!user) {
           throw new Error('Not found');
         }
@@ -22,6 +22,18 @@ export default NextAuth({
         const isValid = await compare(credentials.password, user.hashPassword);
         if (!isValid) {
           throw new Error('Incorrect password');
+        }
+
+        const log = await JSON.parse(credentials.log);
+
+        if (!log) {
+          throw new Error('Log not possible');
+        }
+
+        const logged = await saveUserLog(user, log);
+
+        if (!logged) {
+          throw new Error('Log not possible');
         }
 
         return {
@@ -32,7 +44,7 @@ export default NextAuth({
   ],
   callbacks: {
     async jwt(token) {
-      const user = await setAccess(token.email);
+      const user = await getUserByEmail(token.email);
       token.active = user.active;
       token.perms = user.permission === process.env.PERM_ADM ? 'adm' : 'cli';
       return token;
@@ -47,7 +59,7 @@ export default NextAuth({
       } else {
         const user = await getUserByEmail(session.user.email);
         firstAccess = !user.active;
-        perms = user.permission === process.env.PERM_ADM ? 'adm' : 'cli';;
+        perms = user.permission === process.env.PERM_ADM ? 'adm' : 'cli';
       }
 
       session.user.firstAccess = firstAccess;

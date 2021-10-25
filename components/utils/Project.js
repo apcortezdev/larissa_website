@@ -75,7 +75,7 @@ const Project = ({ project, onChange }) => {
       formData.append('projId', project._id);
       formData.append('file', file);
       proms.push(
-        fetch('/api/files/setFile', {
+        fetch('/api/files/save', {
           method: method,
           headers: {
             'project-id': project._id,

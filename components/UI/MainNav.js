@@ -141,10 +141,13 @@ export default function MainNav() {
           }),
         });
       } else {
+        const local = await fetch('https://geolocation-db.com/json/');
+        const location = await local.json();
         response = await signin('credentials', {
           redirect: false,
           email: email,
           password: password,
+          log: JSON.stringify(location),
         });
       }
       switch (response.status) {
@@ -168,6 +171,7 @@ export default function MainNav() {
           session.user.firstAccess = false;
           break;
         default:
+          console.log(response.error);
           setMessage(
             'Ops, algo deu errado. Por favor, tente daqui a pouquinho!'
           );
@@ -233,8 +237,6 @@ export default function MainNav() {
   };
 
   useEffect(() => {
-    console.log('session');
-    console.log(session);
     if (projects.length === 0 && session && logToggle) {
       openDrawer();
     }
@@ -279,7 +281,7 @@ export default function MainNav() {
       formData.append('projId', activeProj._id);
       formData.append('file', file);
       proms.push(
-        fetch('/api/files/setFile', {
+        fetch('/api/files/save', {
           method: method,
           headers: {
             'project-id': activeProj._id,
@@ -638,7 +640,7 @@ export default function MainNav() {
                     <div className={styles.filesBox}>
                       {activeProj?.files.length > 0 ? (
                         activeProj?.files.map((file, index) => (
-                          <div key={file.name}>
+                          <div key={file.key}>
                             <p onClick={(e) => getFile(e, file.key)}>
                               {file.name}
                             </p>

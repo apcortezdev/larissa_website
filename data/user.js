@@ -61,7 +61,9 @@ export async function getUserByEmail(email) {
   }
 
   try {
-    let user = await User.findOne().byEmail(email);
+    let user = await User.findOne()
+      .byEmail(email)
+      .select('_id email active permission lastAccess');
     return user;
   } catch (err) {
     throw new Error('ERN0U6: ' + err.message);
@@ -260,11 +262,9 @@ export async function setNewPasswordFirstAccess(email, newPassword) {
   }
 }
 
-export async function setAccess(email) {
-  if (!email) {
-    throw new Error('ERN0U26: Email obrigatório');
-  } else if (!validateEmail(email)) {
-    throw new Error('ERN0U26: Email inválido');
+export async function saveUserLog(user, log) {
+  if (!user) {
+    throw new Error('ERN0U26: Usuário não encontrado');
   }
 
   try {
@@ -274,11 +274,33 @@ export async function setAccess(email) {
   }
 
   try {
-    let user = await User.findOne().byEmail(email);
-    if (!user) throw new Error('404');
-    user.lastAccess = new Date();
+    await User.findByIdAndUpdate(user._id, {
+      $push: {
+        accessLogs: {
+          ...log,
+        },
+      },
+    });
+    return true;
+  } catch (err) {
+    console.log(err)
+    throw new Error('ERN0U28: ' + err.message);
+  }
+}
+
+export async function getUserHash(email) {
+  try {
+    await dbConnect();
+  } catch (err) {
+    throw new Error('ERN0U29: ' + err.message);
+  }
+
+  try {
+    let user = await User.findOne()
+      .byEmail(email)
+      .select('_id email active permission lastAccess hashPassword');
     return user;
   } catch (err) {
-    throw new Error('ERN0U28: ' + err.message);
+    throw new Error('ERN0U30: ' + err.message);
   }
 }

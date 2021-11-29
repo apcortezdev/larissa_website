@@ -41,3 +41,4 @@ yarn-error.log*
 *.turtle
 wiredTiger
 journal
+/data/db/*

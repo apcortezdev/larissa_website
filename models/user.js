@@ -88,7 +88,7 @@ const accessLogSchema = new Schema({
   },
   accessOn: {
     type: Date,
-    required: new Date(),
+    default: new Date(),
   },
 });
 
